@@ -19,20 +19,16 @@ from openvarak.tools.storage.ingest import ingest_path
 def _get_backend(backend_key: str | None = None):
     """Instantiate the configured (or overridden) memory backend."""
     config = load_config()
-    key = backend_key or config.memory.default_backend
+    from openvarak.tools.storage import create_memory_backend
 
-    # Ensure backends are registered
-    import openvarak.tools.storage  # noqa: F401
-
-    if not MemoryRegistry.contains(key):
+    try:
+        return create_memory_backend(config, backend_key)
+    except KeyError as exc:
         raise click.ClickException(
-            f"Memory backend '{key}' not found. "
+            "Memory backend "
+            f"'{backend_key or config.memory.default_backend}' not found. "
             f"Available: {', '.join(MemoryRegistry.keys())}"
-        )
-
-    if key == "sqlite":
-        return MemoryRegistry.create(key, db_path=config.memory.db_path)
-    return MemoryRegistry.create(key)
+        ) from exc
 
 
 @click.group()

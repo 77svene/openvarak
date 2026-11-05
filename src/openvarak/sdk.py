@@ -30,27 +30,9 @@ class MemoryHandle:
         if self._backend is not None:
             return self._backend
 
-        import openvarak.tools.storage  # noqa: F401
-        from openvarak.core.registry import MemoryRegistry
+        from openvarak.tools.storage import create_memory_backend
 
-        key = self._config.memory.default_backend
-        if not MemoryRegistry.contains(key):
-            # Register built-in backends
-            try:
-                from openvarak.tools.storage.sqlite import SQLiteMemory  # noqa: F401
-            except ImportError:
-                pass
-
-        if not MemoryRegistry.contains(key):
-            raise RuntimeError(f"Memory backend '{key}' not available")
-
-        if key == "sqlite":
-            self._backend = MemoryRegistry.create(
-                key,
-                db_path=self._config.memory.db_path,
-            )
-        else:
-            self._backend = MemoryRegistry.create(key)
+        self._backend = create_memory_backend(self._config)
         return self._backend
 
     def index(

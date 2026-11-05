@@ -42,6 +42,7 @@ def _patch_ask(monkeypatch, tmp_path, *, engine_result=None, no_engine=False):
         AgentRegistry.register_value("simple", SimpleAgent)
 
     cfg = JarvisConfig()
+    cfg.telemetry.enabled = True
     cfg.telemetry.db_path = str(tmp_path / "telemetry.db")
     cfg.traces.enabled = False
 

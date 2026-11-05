@@ -160,10 +160,13 @@ class TestWebSearchTool:
 
         monkeypatch.setattr(builtins, "__import__", _mock_import)
 
+        fallback = MagicMock(return_value="Offline fallback fixture")
+        monkeypatch.setattr(WebSearchTool, "_duckduckgo_search", fallback)
         tool = WebSearchTool(api_key="test-key")
         result = tool.execute(query="test query")
         assert result.success is True
         assert result.metadata["engine"] == "duckduckgo"
+        fallback.assert_called_once()
 
     def test_execute_duckduckgo_fallback_format(self, monkeypatch):
         """DuckDuckGo fallback returns properly formatted results."""
@@ -245,10 +248,13 @@ class TestWebSearchTool:
 
         monkeypatch.setattr(builtins, "__import__", _mock_import)
 
+        fallback = MagicMock(return_value="Offline fallback fixture")
+        monkeypatch.setattr(WebSearchTool, "_duckduckgo_search", fallback)
         tool = WebSearchTool(api_key="test-key")
         result = tool.execute(query="test query")
         assert result.success is True
         assert result.metadata["engine"] == "duckduckgo"
+        fallback.assert_called_once()
 
     def test_empty_results(self, monkeypatch):
         import builtins

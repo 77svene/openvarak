@@ -44,6 +44,7 @@ def test_get_memory_backend_returns_backend_even_when_empty(
 
     config = JarvisConfig()
     config.memory = MemoryConfig(
+        default_backend="sqlite",
         db_path=str(tmp_path / "empty.db"),
     )
 
@@ -70,7 +71,7 @@ def test_get_memory_backend_returns_backend_with_docs(
 
     db_path = str(tmp_path / "test.db")
     config = JarvisConfig()
-    config.memory = MemoryConfig(db_path=db_path)
+    config.memory = MemoryConfig(default_backend="sqlite", db_path=db_path)
 
     # Pre-populate with a document
     backend = SQLiteMemory(db_path=db_path)

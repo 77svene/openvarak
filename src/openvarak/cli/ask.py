@@ -263,22 +263,9 @@ def _get_memory_backend(config):
     tool is the hallucination vector.
     """
     try:
-        import openvarak.tools.storage  # noqa: F401
-        from openvarak.core.registry import MemoryRegistry
+        from openvarak.tools.storage import create_memory_backend
 
-        key = config.memory.default_backend
-        if not MemoryRegistry.contains(key):
-            return None
-
-        if key == "sqlite":
-            backend = MemoryRegistry.create(
-                key,
-                db_path=config.memory.db_path,
-            )
-        else:
-            backend = MemoryRegistry.create(key)
-
-        return backend
+        return create_memory_backend(config)
     except Exception as exc:
         logger.debug("Memory backend unavailable (optional): %s", exc)
         return None

@@ -277,6 +277,10 @@ def _do_download(engine: str, model: str, spec, console: Console) -> None:
     "--preset",
     type=click.Choice(
         [
+            "chat-simple",
+            "morning-digest-mac",
+            "morning-digest-linux",
+            "morning-digest-minimal",
             "deep-research",
             "code-assistant",
             "scheduled-monitor",
@@ -348,6 +352,13 @@ def init(
                 / "examples"
             )
         preset_path = examples_dir / f"{preset}.toml"
+        if not preset_path.exists():
+            # Archived profiles remain explicit opt-ins on the deprecated CLI.
+            archived = (
+                examples_dir.parent.parent / "archive" / "consumer" / f"{preset}.toml"
+            )
+            if archived.exists():
+                preset_path = archived
         if not preset_path.exists():
             console.print(f"[red]Preset '{preset}' not found.[/red]")
             console.print(f"  Looked in: {examples_dir}")

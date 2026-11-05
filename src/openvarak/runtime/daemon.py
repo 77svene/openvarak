@@ -46,15 +46,23 @@ class DesktopRuntime:
     """
 
     def __init__(self, config, *, agent=None, memory=None, engine=None):
+        if config.desktop.queue_size < 1:
+            raise ValueError("desktop.queue_size must be positive")
         self.config = config
-        self.memory = memory or HybridPersistentMemoryBackend.from_config(config)
         self.engine = engine or build_desktop_engine(config)
+        try:
+            self.memory = memory or HybridPersistentMemoryBackend.from_config(config)
+        except Exception:
+            self.engine.close()
+            raise
         self._agent = agent
         self._optimizer = None
         self._owned_tools = []
         self._queue = asyncio.Queue(maxsize=config.desktop.queue_size)
         self._worker = None
         self._stopping = False
+        self._closed = False
+        self._queued_jobs = set()
         self._job_lock = threading.RLock()
         self._db = sqlite3.connect(self.memory._db_path, check_same_thread=False)
         self._db.execute("PRAGMA busy_timeout=5000")
@@ -68,12 +76,23 @@ class DesktopRuntime:
         from openvarak.agents.native_openhands import NativeOpenHandsAgent
         from openvarak.agents.operative import OperativeAgent
         from openvarak.agents.rlm import RLMAgent
+        from openvarak.core.events import EventBus
         from openvarak.learning.agents.live_skill_optimizer import LiveSkillOptimizer
         from openvarak.sandbox.skills import SkillSandbox
-        from openvarak.skills.synthesis import SkillSynthesizer, SynthesizeSkillTool
+        from openvarak.security import setup_security
+        from openvarak.skills.synthesis import (
+            SkillSynthesizer,
+            SynthesizedSkillTool,
+            SynthesizeSkillTool,
+        )
         from openvarak.tools.playwright_session import PlaywrightSessionTool
         from openvarak.tools.storage_tools import MemoryRetrieveTool, MemoryStoreTool
 
+        bus = EventBus()
+        security = setup_security(self.config, self.engine, bus)
+        self.engine = security.engine
+        if security.audit_logger is not None:
+            self._owned_tools.append(security.audit_logger)
         browser = PlaywrightSessionTool()
         self._owned_tools.append(browser)
         tools = [
@@ -117,6 +136,9 @@ class DesktopRuntime:
             "tools": tools,
             "max_turns": self.config.agent.max_turns,
             "max_tokens": self.config.intelligence.max_tokens,
+            "bus": bus,
+            "capability_policy": security.capability_policy,
+            "rate_limiter": security.rate_limiter,
         }
         if kind in {"operative", "monitor_operative"}:
             kwargs.update(
@@ -133,26 +155,53 @@ class DesktopRuntime:
             self._optimizer = LiveSkillOptimizer(
                 self.engine, agent._model, synthesizer, self.memory
             )
+
+            def repair(tool, call, result):
+                if isinstance(tool, SynthesizedSkillTool):
+                    allowed = agent._authorize_direct_operation(
+                        ["code:execute", "file:write"], operation="synthesize_skill"
+                    )
+                    if not allowed.success:
+                        result.metadata["repair_denied"] = True
+                        return None
+                return self._optimizer(tool, call, result)
+
             agent._executor.configure_repair(
-                self._optimizer,
+                repair,
                 self.config.desktop.self_heal_threshold,
             )
         return agent
 
     async def start(self):
+        if self._closed:
+            raise RuntimeError("Desktop runtime is closed")
+        if self._worker is not None:
+            if self._worker.done():
+                raise RuntimeError("Desktop worker has stopped")
+            return
         if self._agent is None:
             self._agent = await asyncio.to_thread(self._build_agent)
-        # Recover unacknowledged jobs before accepting more work.
+        # Recover interrupted work without waiting for inference during startup.
         with self._job_lock, self._db:
             self._db.execute(
                 "UPDATE varak_jobs SET status='pending' WHERE status='running'"
             )
-            rows = self._db.execute(
-                "SELECT id FROM varak_jobs WHERE status='pending' ORDER BY created_at"
-            ).fetchall()
+        self._refill_pending()
         self._worker = asyncio.create_task(self._consume())
+
+    def _refill_pending(self):
+        if self._stopping or self._queue.full():
+            return
+        with self._job_lock:
+            rows = self._db.execute(
+                "SELECT id FROM varak_jobs WHERE status='pending' ORDER BY created_at "
+                "LIMIT ?",
+                (self.config.desktop.queue_size,),
+            ).fetchall()
         for (job_id,) in rows:
-            await self._queue.put(job_id)
+            if job_id not in self._queued_jobs and not self._queue.full():
+                self._queue.put_nowait(job_id)
+                self._queued_jobs.add(job_id)
 
     def submit(self, payload):
         if self._stopping:
@@ -165,11 +214,17 @@ class DesktopRuntime:
         if self._queue.full():
             raise asyncio.QueueFull
         with self._job_lock, self._db:
+            pending = self._db.execute(
+                "SELECT count(*) FROM varak_jobs WHERE status='pending'"
+            ).fetchone()[0]
+            if pending >= self.config.desktop.queue_size:
+                raise asyncio.QueueFull
             self._db.execute(
                 "INSERT INTO varak_jobs VALUES (?,?,'pending',NULL,?)",
                 (job_id, json.dumps(payload), time.time()),
             )
         self._queue.put_nowait(job_id)
+        self._queued_jobs.add(job_id)
         return job_id
 
     def job(self, job_id):
@@ -200,13 +255,15 @@ class DesktopRuntime:
             try:
                 if job_id is None:
                     return
-                with self._job_lock:
-                    row = self._db.execute(
-                        "SELECT payload FROM varak_jobs WHERE id=?", (job_id,)
-                    ).fetchone()
-                self._status(job_id, "running")
-                payload = json.loads(row[0])
                 try:
+                    with self._job_lock:
+                        row = self._db.execute(
+                            "SELECT payload FROM varak_jobs WHERE id=?", (job_id,)
+                        ).fetchone()
+                    if row is None:
+                        continue
+                    self._status(job_id, "running")
+                    payload = json.loads(row[0])
                     result = await asyncio.to_thread(self._run, payload, job_id)
                     self.memory.checkpoint("desktop", result)
                     self._status(job_id, "completed", result)
@@ -216,6 +273,10 @@ class DesktopRuntime:
                     )
                     self._status(job_id, "failed", {"error": str(exc)})
             finally:
+                self._queued_jobs.discard(job_id)
+                # Refill before task_done so queue.join cannot finish while
+                # durable jobs remain outside the bounded in-memory queue.
+                self._refill_pending()
                 self._queue.task_done()
 
     def _run(self, payload, job_id):
@@ -276,16 +337,28 @@ class DesktopRuntime:
                 routing_hints.reset(token)
 
     async def close(self):
+        if self._closed:
+            return
+        self._closed = True
         self._stopping = True
-        if self._worker:
-            if not self._worker.done() and self._queue.empty():
-                self._queue.put_nowait(None)
-            await self._worker  # finish active job; pending work stays durable
-        for tool in reversed(self._owned_tools):
-            await asyncio.to_thread(tool.close)
-        self.engine.close()
-        self._db.close()
-        await asyncio.to_thread(self.memory.close)
+        try:
+            if self._worker:
+                if not self._worker.done() and self._queue.empty():
+                    self._queue.put_nowait(None)
+                await self._worker
+        finally:
+            # A browser/audit cleanup failure must not leak databases or engines.
+            resources = [
+                *reversed(self._owned_tools),
+                self.engine,
+                self._db,
+                self.memory,
+            ]
+            for resource in resources:
+                try:
+                    await asyncio.to_thread(resource.close)
+                except Exception:
+                    logger.warning("Desktop resource cleanup failed", exc_info=True)
 
 
 def create_app(config, *, runtime=None):

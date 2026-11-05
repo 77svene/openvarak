@@ -131,12 +131,9 @@ def _resolve_memory_backend(config: Any) -> Any:
     if config is None:
         return None
     try:
-        import openvarak.tools.storage  # noqa: F401
-        from openvarak.core.registry import MemoryRegistry
+        from openvarak.tools.storage import create_memory_backend
 
-        key = config.memory.default_backend
-        if MemoryRegistry.contains(key):
-            return MemoryRegistry.create(key, db_path=config.memory.db_path)
+        return create_memory_backend(config)
     except Exception:
         logger.debug("Lightweight system: memory backend init failed", exc_info=True)
     return None

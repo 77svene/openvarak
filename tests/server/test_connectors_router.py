@@ -709,11 +709,17 @@ def test_connect_weather_requires_location(app, tmp_path: Path) -> None:
         _instances.pop("weather", None)
 
 
-def test_connect_news_rss_requires_and_persists_feeds(app, tmp_path: Path) -> None:
+def test_connect_news_rss_requires_and_persists_feeds(
+    app, tmp_path: Path, monkeypatch
+) -> None:
     """A local connector with required setup cannot claim success for ``{}``."""
     from openvarak.connectors.news_rss import NewsRSSConnector
     from openvarak.server.connectors_router import _instances
 
+    monkeypatch.setattr(
+        "openvarak.connectors.news_rss._resolve_host_addresses",
+        lambda hostname, port: ("93.184.216.34",),
+    )
     path = tmp_path / "news_rss.json"
     instance = NewsRSSConnector(config_path=str(path))
     instance.sync = lambda **_kwargs: iter(())

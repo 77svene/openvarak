@@ -220,6 +220,7 @@ DEFAULT_TOOL_CAPABILITIES: Dict[str, List[str]] = {
     "browser_navigate": [Capability.NETWORK_FETCH],
     "browser_screenshot": [Capability.NETWORK_FETCH],
     "browser_type": [Capability.NETWORK_FETCH],
+    "playwright_session": [Capability.NETWORK_FETCH],
     "calculator": [],
     "calendar_search": [Capability.FILE_READ],
     "calendar_upcoming": [Capability.FILE_READ],
