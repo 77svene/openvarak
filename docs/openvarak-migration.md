@@ -106,18 +106,21 @@ reconciliation. Restarted jobs are at-least-once and can repeat side effects.
 Review status: PR #1 had no inline findings; Codex reported none and CodeRabbit
 skipped its review. No GitHub Actions runs were recorded for the merged commit.
 The fixes above came from direct source review and expanded local testing.
+The follow-up Codex P2 finding about knowledge/knowledge_graph paths is addressed
+by forwarding db_path to any backend constructor that explicitly accepts it.
 
 Validation after these fixes:
 
 - The renamed Rust extension built successfully with a locked dependency graph
   and imports correctly (rustc 1.99.1; no Rust source changes in this follow-up).
-- **9,426 passed, 103 skipped** in the broad pytest lane, with live/cloud/hub/
+- **9,440 passed, 103 skipped** in the broad pytest lane, with live/cloud/hub/
   external-runtime/Modal tests excluded and external Python sockets blocked.
   Seven process/PID integration cases were explicitly deselected because this
   execution host's `/proc` does not expose its reported process IDs. Those tests
   remain enabled in CI and were not weakened in source.
-- 15 new desktop review regression cases exercise memory configuration across
-  entry points, persistent queue recovery, corrupt jobs, cleanup, idempotent
+- 29 new desktop review regression cases exercise memory configuration across
+  entry points (including knowledge and knowledge_graph), registered persistent
+  plugins, persistent queue recovery, corrupt jobs, cleanup, idempotent
   startup, connector adapter preservation, and policy enforcement during both
   synthesis and automatic repair.
 - Ruff lint/format checks pass; packaging smoke checks pass; the daemon returns

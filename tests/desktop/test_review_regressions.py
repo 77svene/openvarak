@@ -269,3 +269,67 @@ async def test_automatic_skill_repair_cannot_bypass_denied_file_write(
         optimizer.assert_not_called()
     finally:
         await runtime.close()
+
+
+@pytest.mark.parametrize("backend_key", ["knowledge", "knowledge_graph"])
+@pytest.mark.parametrize(
+    "entrypoint", ["factory", "ask", "memory", "sdk", "builder", "server"]
+)
+def test_other_persistent_backends_keep_configured_corpus(
+    tmp_path, backend_key, entrypoint
+):
+    """A selected persistent backend must never silently open its default DB."""
+    from unittest.mock import patch
+
+    config = JarvisConfig()
+    config.memory.default_backend = backend_key
+    config.memory.db_path = str(tmp_path / "selected-corpus.db")
+    MemoryRegistry.clear()
+    ask = importlib.import_module("openvarak.cli.ask")
+    memory_cmd = importlib.import_module("openvarak.cli.memory_cmd")
+    server = importlib.import_module("openvarak.server.agent_manager_routes")
+    with patch.object(memory_cmd, "load_config", return_value=config):
+        factories = {
+            "factory": lambda: create_memory_backend(config),
+            "ask": lambda: ask._get_memory_backend(config),
+            "memory": memory_cmd._get_backend,
+            "sdk": lambda: MemoryHandle(config)._get_backend(),
+            "builder": lambda: SystemBuilder(config)._resolve_memory(config),
+            "server": lambda: server._resolve_memory_backend(config),
+        }
+        backend = factories[entrypoint]()
+    assert backend is not None
+    try:
+        assert str(backend._db_path) == config.memory.db_path
+        # Verify an actual write lands in the selected file, independent of
+        # whether this backend exposes document or graph operations.
+        with backend._conn:
+            backend._conn.execute("CREATE TABLE path_probe (value TEXT)")
+            backend._conn.execute("INSERT INTO path_probe VALUES ('selected')")
+    finally:
+        backend.close()
+    with sqlite3.connect(config.memory.db_path) as conn:
+        assert conn.execute("SELECT value FROM path_probe").fetchone()[0] == "selected"
+
+
+def test_registered_persistent_plugin_receives_its_configured_path(tmp_path):
+    class PersistentPlugin:
+        def __init__(self, db_path="default.db"):
+            self.path = db_path
+
+    config = JarvisConfig()
+    config.memory.default_backend = "plugin"
+    config.memory.db_path = str(tmp_path / "plugin.db")
+    MemoryRegistry.register_value("plugin", PersistentPlugin)
+    assert create_memory_backend(config).path == config.memory.db_path
+
+
+def test_memory_factory_does_not_pass_paths_to_volatile_backends():
+    class VolatilePlugin:
+        def __init__(self):
+            self.ready = True
+
+    config = JarvisConfig()
+    config.memory.default_backend = "volatile"
+    MemoryRegistry.register_value("volatile", VolatilePlugin)
+    assert create_memory_backend(config).ready
