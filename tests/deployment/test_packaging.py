@@ -117,6 +117,8 @@ def test_sdist_omits_desktop_binaries_and_rebuilds_runtime_wheel(tmp_path) -> No
     project.mkdir()
     runtime_sources = (
         "src/openvarak/__init__.py",
+        "src/openvarak/desktop_cli.py",
+        "src/openvarak/data/desktop-autonomous.toml",
         "src/openvarak/templates/data/assistant.toml",
     )
     force_include = _pyproject()["tool"]["hatch"]["build"]["targets"]["wheel"][

@@ -31,7 +31,7 @@
 - Operative and monitor persistence now support the document-memory interface as
   well as legacy key/value stores.
 
-## Verification completed in this environment
+## Initial implementation verification
 
 - `uv lock --check` passes.
 - `uv run varak --help` and `uv run varak check` pass.
@@ -64,7 +64,7 @@
   25 skipped, 1 collection error**. Failures included missing native Rust bindings
   and runner SOCKS-proxy support. The full upstream suite is not certified passing.
 
-## Not live-verified here
+## Initial live-verification limits
 
 There is no Docker executable, Rust toolchain, local GPU inference server,
 Playwright browser installation, or Supabase credentials in this environment.
@@ -77,6 +77,60 @@ Token capacity is configurable and estimated, not automatically derived from
 VRAM. Routing percentages depend on workload. LAN support is an explicit endpoint
 hook. Cloud memory is local-authoritative synchronization, not distributed state
 reconciliation. Restarted jobs are at-least-once and can repeat side effects.
+
+## Post-merge review fixes
+
+- Centralized memory construction so CLI, SDK, builder, and server entry points
+  honor the configured SQLite path and optional sync settings, including after
+  registry resets. Optional vector stores still load only when selected.
+- Restored inference trace events when telemetry is disabled and an adapter does
+  not explicitly declare that it publishes its own events.
+- Kept archived consumer profiles available only through explicit legacy CLI
+  selection; the primary `varak init` default remains the desktop profile.
+- Wired daemon scanners, capability policy, and rate limiter into the active
+  agent/executor. Added capability requirements for persistent browsing, skill
+  synthesis, synthesized execution, and automatic code repair.
+- Prevented startup from waiting on inference when a recovered backlog exceeds a
+  newly reduced queue size. Corrupt job payloads no longer kill the worker, and
+  cleanup continues after an individual resource fails. Repeated start/close calls
+  preserve one worker and do not reuse closed resources.
+- Restored connector registry entries from cached classes without reloading their
+  modules and discarding configured/injected adapters.
+- Mocked search/RSS unit-test network dependencies and Sendblue webhook replies.
+  Reply mocks stay attached to test channel instances, including background tasks.
+  Added pytest-socket to development dependencies and the Linux CI test lane to
+  block non-loopback Python sockets during unit tests.
+- Extended packaging verification to require the desktop CLI module and bundled
+  desktop profile in both source and wheel distributions.
+
+Review status: PR #1 had no inline findings; Codex reported none and CodeRabbit
+skipped its review. No GitHub Actions runs were recorded for the merged commit.
+The fixes above came from direct source review and expanded local testing.
+The follow-up Codex P2 finding about knowledge/knowledge_graph paths is addressed
+by forwarding db_path to any backend constructor that explicitly accepts it.
+
+Validation after these fixes:
+
+- The renamed Rust extension built successfully with a locked dependency graph
+  and imports correctly (rustc 1.99.1; no Rust source changes in this follow-up).
+- **9,440 passed, 103 skipped** in the broad pytest lane, with live/cloud/hub/
+  external-runtime/Modal tests excluded and external Python sockets blocked.
+  Seven process/PID integration cases were explicitly deselected because this
+  execution host's `/proc` does not expose its reported process IDs. Those tests
+  remain enabled in CI and were not weakened in source.
+- 29 new desktop review regression cases exercise memory configuration across
+  entry points (including knowledge and knowledge_graph), registered persistent
+  plugins, persistent queue recovery, corrupt jobs, cleanup, idempotent
+  startup, connector adapter preservation, and policy enforcement during both
+  synthesis and automatic repair.
+- Ruff lint/format checks pass; packaging smoke checks pass; the daemon returns
+  HTTP 200 at `/health` and shuts down cleanly.
+
+The excluded host cases are the three `TestPidLiveness` cases concerning current
+PID/registered PID/reused PID, both parameterizations of real descendant cleanup,
+and the current-process liveness and real-process termination cases in
+`tests/core/test_utils.py`. Live GPU, browser, Docker, and Supabase acceptance
+checks still require the intended desktop/services.
 
 ## Initial GitHub publication attempt
 

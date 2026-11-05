@@ -269,7 +269,7 @@ class BaseAgent(ABC):
         Publishes INFERENCE_START/END events on the bus when the engine
         does not publish its own (i.e. non-instrumented engines).
         """
-        if self._bus and not getattr(self._engine, "_publishes_events", False):
+        if self._bus and getattr(self._engine, "_publishes_events", False) is not True:
             engine_id = getattr(self._engine, "engine_id", "")
             self._bus.publish(
                 EventType.INFERENCE_START,
@@ -309,7 +309,7 @@ class BaseAgent(ABC):
             **gen_kwargs,
         )
 
-        if self._bus and not getattr(self._engine, "_publishes_events", False):
+        if self._bus and getattr(self._engine, "_publishes_events", False) is not True:
             usage = result.get("usage", {})
             self._bus.publish(
                 EventType.INFERENCE_END,

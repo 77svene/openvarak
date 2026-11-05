@@ -52,6 +52,7 @@ class PlaywrightSessionTool(BaseTool):
                 "required": ["action"],
             },
             timeout_seconds=40,
+            required_capabilities=["network:fetch"],
         )
 
     def _operate(self, action, tab=0, url="", selector="", value=""):

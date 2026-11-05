@@ -26,6 +26,16 @@ def _register_sendblue():
         ChannelRegistry.register_value("sendblue", SendBlueChannel)
 
 
+def _offline_sendblue_channel(**kwargs):
+    """Keep replies on each test instance mocked, including background tasks."""
+    from openvarak.channels.sendblue import SendBlueChannel
+
+    channel = SendBlueChannel(**kwargs)
+    channel.send = MagicMock(return_value=True)
+    channel.connect()
+    return channel
+
+
 @pytest.fixture
 def mock_bridge():
     bridge = MagicMock()
@@ -35,9 +45,8 @@ def mock_bridge():
 
 @pytest.fixture
 def sendblue_channel():
-    from openvarak.channels.sendblue import SendBlueChannel
 
-    ch = SendBlueChannel(
+    ch = _offline_sendblue_channel(
         api_key_id="test_key",
         api_secret_key="test_secret",
         from_number="+15551234567",
@@ -45,7 +54,6 @@ def sendblue_channel():
         # the test client send the matching header by default.
         webhook_secret="testsecret",
     )
-    ch.connect()
     return ch
 
 
@@ -75,7 +83,7 @@ def client(webhook_app):
 
 
 class TestSendBlueWebhook:
-    def test_incoming_message_returns_200(self, client):
+    def test_incoming_message_returns_200(self, client, sendblue_channel):
         resp = client.post(
             "/webhooks/sendblue",
             json={
@@ -89,6 +97,7 @@ class TestSendBlueWebhook:
             },
         )
         assert resp.status_code == 200
+        sendblue_channel.send.assert_called()
 
     def test_outbound_status_callback_ignored(self, client, mock_bridge):
         resp = client.post(
@@ -127,16 +136,14 @@ class TestSendBlueWebhook:
 
     def test_webhook_secret_validation(self, mock_bridge):
         """When a webhook secret is set, reject requests without it."""
-        from openvarak.channels.sendblue import SendBlueChannel
         from openvarak.server.webhook_routes import create_webhook_router
 
-        ch = SendBlueChannel(
+        ch = _offline_sendblue_channel(
             api_key_id="k",
             api_secret_key="s",
             from_number="+1555",
             webhook_secret="mysecret",
         )
-        ch.connect()
 
         app = FastAPI()
         router = create_webhook_router(bridge=mock_bridge, sendblue_channel=ch)
@@ -188,11 +195,11 @@ class TestSendBlueWebhook:
 
     def test_no_secret_configured_is_rejected(self, mock_bridge):
         """Fail closed: a channel without a webhook_secret rejects all posts."""
-        from openvarak.channels.sendblue import SendBlueChannel
         from openvarak.server.webhook_routes import create_webhook_router
 
-        ch = SendBlueChannel(api_key_id="k", api_secret_key="s", from_number="+1555")
-        ch.connect()
+        ch = _offline_sendblue_channel(
+            api_key_id="k", api_secret_key="s", from_number="+1555"
+        )
         app = FastAPI()
         router = create_webhook_router(bridge=mock_bridge, sendblue_channel=ch)
         app.include_router(router)

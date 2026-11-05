@@ -41,44 +41,30 @@ def _knowledge_sources(connector_id: str, connector: Any = None) -> tuple[str, .
 
 
 def _ensure_connectors_registered() -> None:
-    """Ensure ConnectorRegistry is populated.
+    """Restore cached connector classes without re-executing module state.
 
-    If the registry has been cleared (e.g. by test fixtures) but connector
-    modules are already cached in sys.modules, reload each submodule to
-    re-execute their @ConnectorRegistry.register decorators.
+    Reloading modules invalidates held classes, adapters, and injected clients.
+    A cleared or partially populated registry only needs its existing classes.
     """
-    import importlib
     import sys
 
+    import openvarak.connectors  # noqa: F401
+    from openvarak.connectors._stubs import BaseConnector
     from openvarak.core.registry import ConnectorRegistry
 
-    # First, try a normal import (works if modules haven't been imported yet).
-    try:
-        import openvarak.connectors  # noqa: F401
-    except Exception:
-        pass
-
-    # If the registry is still empty, reload individual connector submodules
-    # that are already present in sys.modules.
-    if not ConnectorRegistry.keys():
-        for mod_name in list(sys.modules):
+    for name, module in tuple(sys.modules.items()):
+        if not name.startswith("openvarak.connectors.") or module is None:
+            continue
+        for cls in tuple(vars(module).values()):
             if (
-                mod_name.startswith("openvarak.connectors.")
-                and not mod_name.endswith("_stubs")
-                and not mod_name.endswith("pipeline")
-                and not mod_name.endswith("store")
-                and not mod_name.endswith("chunker")
-                and not mod_name.endswith("retriever")
-                and not mod_name.endswith("sync_engine")
-                and not mod_name.endswith("oauth")
-                # Registers nothing; reloading it would only swap out the
-                # OllamaEmbedder class under anyone holding (or patching) it.
-                and not mod_name.endswith("embeddings")
+                isinstance(cls, type)
+                and cls.__module__ == name
+                and issubclass(cls, BaseConnector)
+                and cls is not BaseConnector
             ):
-                try:
-                    importlib.reload(sys.modules[mod_name])
-                except Exception:
-                    pass
+                key = getattr(cls, "connector_id", None)
+                if isinstance(key, str) and key and not ConnectorRegistry.contains(key):
+                    ConnectorRegistry.register_value(key, cls)
 
 
 # ---------------------------------------------------------------------------

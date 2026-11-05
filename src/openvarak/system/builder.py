@@ -439,18 +439,9 @@ class SystemBuilder:
 
     def _resolve_memory(self, config):
         try:
-            import openvarak.tools.storage  # noqa: F401 -- trigger registration
-            from openvarak.core.registry import MemoryRegistry
+            from openvarak.tools.storage import create_memory_backend
 
-            key = config.memory.default_backend
-            if MemoryRegistry.contains(key):
-                if key == "hybrid_persistent":
-                    from openvarak.tools.storage.persistent import (
-                        HybridPersistentMemoryBackend,
-                    )
-
-                    return HybridPersistentMemoryBackend.from_config(config)
-                return MemoryRegistry.create(key, db_path=config.memory.db_path)
+            return create_memory_backend(config)
         except Exception as exc:
             logger.warning("Failed to resolve memory backend: %s", exc)
         return None

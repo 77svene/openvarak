@@ -25,6 +25,7 @@ class SynthesizedSkillTool(BaseTool):
             parameters=parameters,
             category="synthesized",
             timeout_seconds=40,
+            required_capabilities=["code:execute"],
         )
         self.source, self.sandbox = source, sandbox
         self.tool_id = name
@@ -197,6 +198,7 @@ class SynthesizeSkillTool(BaseTool):
                 "required": ["name", "description", "source", "test_params"],
             },
             timeout_seconds=90,
+            required_capabilities=["code:execute", "file:write"],
         )
 
     def execute(self, **params):

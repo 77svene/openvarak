@@ -115,6 +115,12 @@ Built-in tools can receive revised prompt descriptions; their host code is not
 automatically rewritten. Repeated task failures get one bounded optimizer-assisted
 attempt. Policy denials terminate without recovery attempts.
 
+The daemon applies configured scanners, capability policies, and rate limits.
+Browser calls require `network:fetch`; skill synthesis and automatic code repair
+require `code:execute` plus `file:write`. Existing synthesized tools require
+`code:execute` to run. Enabling the native-backed capability policy requires the
+Rust extension below; failed policy initialization stops startup.
+
 ## Verification and optional legacy features
 
 ```bash
