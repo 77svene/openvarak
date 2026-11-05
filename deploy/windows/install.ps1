@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    OpenJarvis native Windows installer.
+    OpenVarak native Windows installer.
 
 .DESCRIPTION
     Phase-1 of the native-Windows-support RFC (#298). Mirrors the
@@ -14,10 +14,10 @@
          see #432).
       3. Check git on PATH.
       4. Install uv (https://astral.sh/uv) if absent.
-      5. Clone the OpenJarvis repository to $env:LOCALAPPDATA\OpenJarvis
-         (override with $env:OPENJARVIS_HOME).
+      5. Clone the OpenVarak repository to $env:LOCALAPPDATA\OpenVarak
+         (override with $env:OPENVARAK_HOME).
       5b. Check for MSVC build tools and explain how to install them if absent - the mandatory
-         openjarvis-rust extension is compiled from source in step 6.
+         openvarak-rust extension is compiled from source in step 6.
       6. Run `uv sync --extra desktop --group desktop-native` so the FastAPI
          server, speech backend, and native extension are importable.
       7. Optionally register the scheduled-task service (see
@@ -38,14 +38,14 @@
     Under `irm | iex` the param block is unreachable (Invoke-Expression
     can't pass named args into a piped script string), so the same knobs
     are honored via env vars when the corresponding flag is absent:
-      $env:OPENJARVIS_SKIP_SERVICE = '1'
-      $env:OPENJARVIS_SERVICE      = '1'
-      $env:OPENJARVIS_FORCE        = '1'
+      $env:OPENVARAK_SKIP_SERVICE = '1'
+      $env:OPENVARAK_SERVICE      = '1'
+      $env:OPENVARAK_FORCE        = '1'
 
 .NOTES
     Loopback default: the scheduled-task service binds 127.0.0.1, so no
     API key is needed. To expose on the LAN, edit the registered task to
-    pass `--host 0.0.0.0` AND set $env:OPENJARVIS_API_KEY (an
+    pass `--host 0.0.0.0` AND set $env:OPENVARAK_API_KEY (an
     unauthenticated 0.0.0.0 server refuses to start). See
     deploy/windows/README.md.
 #>
@@ -62,9 +62,9 @@ $ErrorActionPreference = 'Stop'
 # Env-var fallback for the `irm | iex` path, where the param block is
 # unreachable (see header comment). Any explicit -switch wins; env vars
 # only fill in the gaps.
-if (-not $SkipService -and $env:OPENJARVIS_SKIP_SERVICE) { $SkipService = $true }
-if (-not $Service     -and $env:OPENJARVIS_SERVICE)      { $Service     = $true }
-if (-not $Force       -and $env:OPENJARVIS_FORCE)        { $Force       = $true }
+if (-not $SkipService -and $env:OPENVARAK_SKIP_SERVICE) { $SkipService = $true }
+if (-not $Service     -and $env:OPENVARAK_SERVICE)      { $Service     = $true }
+if (-not $Force       -and $env:OPENVARAK_FORCE)        { $Force       = $true }
 
 # ---------------------------------------------------------------------------
 # Output helpers - coloured but plain enough for Constrained Language Mode.
@@ -206,7 +206,7 @@ $pyMajor = [int]$verMatch.Groups[1].Value
 $pyMinor = [int]$verMatch.Groups[2].Value
 if ($pyMajor -ne 3 -or $pyMinor -lt 10 -or $pyMinor -gt 13) {
     Write-Fail @"
-Found Python $pyMajor.$pyMinor at $pythonExe, but OpenJarvis requires
+Found Python $pyMajor.$pyMinor at $pythonExe, but OpenVarak requires
 3.10 - 3.13. Python 3.14 has no numpy Windows wheels yet (#432, will
 re-open once numpy ships cp314).
 "@
@@ -268,10 +268,10 @@ Write-Ok "uv ($uvExe)"
 # 5. Clone the repo
 # ---------------------------------------------------------------------------
 
-$installRoot = if ($env:OPENJARVIS_HOME) {
-    $env:OPENJARVIS_HOME
+$installRoot = if ($env:OPENVARAK_HOME) {
+    $env:OPENVARAK_HOME
 } else {
-    Join-Path $env:LOCALAPPDATA 'OpenJarvis'
+    Join-Path $env:LOCALAPPDATA 'OpenVarak'
 }
 $srcDir = Join-Path $installRoot 'src'
 
@@ -281,10 +281,10 @@ if (-not (Test-Path $installRoot)) {
     New-Item -ItemType Directory -Path $installRoot | Out-Null
 }
 
-$repoUrl = if ($env:OPENJARVIS_REPO_URL) {
-    $env:OPENJARVIS_REPO_URL
+$repoUrl = if ($env:OPENVARAK_REPO_URL) {
+    $env:OPENVARAK_REPO_URL
 } else {
-    'https://github.com/open-jarvis/OpenJarvis.git'
+    'https://github.com/77svene/openvarak.git'
 }
 
 if (Test-Path (Join-Path $srcDir '.git')) {
@@ -312,9 +312,9 @@ if (Test-Path (Join-Path $srcDir '.git')) {
 # 5b. MSVC build tools - required by the mandatory Rust extension
 # ---------------------------------------------------------------------------
 
-# `--group desktop-native` builds openjarvis-rust from source via maturin
+# `--group desktop-native` builds openvarak-rust from source via maturin
 # (pyproject.toml pins it to a local path; it is not published to PyPI), and
-# src/openjarvis/_rust_bridge.py raises a hard ImportError when the module is
+# src/openvarak/_rust_bridge.py raises a hard ImportError when the module is
 # missing - there is no pure-Python fallback. maturin will bootstrap a Rust
 # toolchain into a temp dir if cargo is absent, which is why this failure is
 # so confusing: cargo appears to run fine and then every build script dies at
@@ -355,7 +355,7 @@ if (Test-MsvcLinker) {
     Write-Fail @"
 MSVC build tools not found.
 
-The next step compiles the mandatory openjarvis-rust extension, which
+The next step compiles the mandatory openvarak-rust extension, which
 needs the MSVC linker (link.exe). Without it every cargo build script
 fails with "error: linker ``link.exe`` not found".
 
@@ -489,7 +489,7 @@ if (-not (Test-Path $binDir)) {
 }
 
 # %~dp0 in a .cmd file resolves to the directory containing the script,
-# so the shim is self-locating - moving %LOCALAPPDATA%\OpenJarvis won't
+# so the shim is self-locating - moving %LOCALAPPDATA%\OpenVarak won't
 # break it as long as the user moves the whole tree. `uv` is resolved
 # from PATH at runtime (astral installer adds it to User PATH); avoids
 # pinning to the install-time uv.exe path which can shift on uv updates.
@@ -501,12 +501,12 @@ uv run --project "%SRC%" jarvis %*
 "@
 Set-Content -Path $shimPath -Value $shimContent -Encoding ASCII
 
-# Add %LOCALAPPDATA%\OpenJarvis\bin to User PATH if it isn't already
+# Add %LOCALAPPDATA%\OpenVarak\bin to User PATH if it isn't already
 # there. The current process won't see it until restart - handled in the
 # final banner.
 #
 # Compare against the EXPANDED form: a previous install may have written
-# the entry as `%LOCALAPPDATA%\OpenJarvis\bin` (unexpanded) into User
+# the entry as `%LOCALAPPDATA%\OpenVarak\bin` (unexpanded) into User
 # PATH, and a literal `-ieq` against the expanded `$binDir` would miss
 # it and append a duplicate every re-run.
 $userPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
@@ -563,7 +563,7 @@ if ($Service) {
     $isInteractive = [Environment]::UserInteractive `
         -and -not [System.Console]::IsInputRedirected
     if ($isInteractive) {
-        $reply = Read-Host "Register OpenJarvis as a Windows scheduled task (auto-start at logon, loopback only)? [y/N]"
+        $reply = Read-Host "Register OpenVarak as a Windows scheduled task (auto-start at logon, loopback only)? [y/N]"
         $shouldInstallService = ($reply -match '^[yY]')
     } else {
         Write-Warn2 "Non-interactive install - skipping scheduled-task setup."
@@ -581,7 +581,7 @@ if ($shouldInstallService) {
     if ($LASTEXITCODE -ne 0) {
         Write-Fail "Scheduled task setup failed."
     }
-    Write-Ok "Scheduled task 'OpenJarvis' registered (loopback default)."
+    Write-Ok "Scheduled task 'OpenVarak' registered (loopback default)."
 }
 
 # ---------------------------------------------------------------------------
@@ -590,7 +590,7 @@ if ($shouldInstallService) {
 
 Write-Host ""
 Write-Host "  +----------------------------------+" -ForegroundColor Green
-Write-Host "  |   OpenJarvis install complete    |" -ForegroundColor Green
+Write-Host "  |   OpenVarak install complete    |" -ForegroundColor Green
 Write-Host "  +----------------------------------+" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Repo:    $srcDir"
@@ -618,7 +618,7 @@ if (-not $modelPullOk) {
 
 if ($shouldInstallService) {
     Write-Host ""
-    Write-Host "  Service: schtasks /Query /TN OpenJarvis     (status)"
+    Write-Host "  Service: schtasks /Query /TN OpenVarak     (status)"
     Write-Host "           powershell -File `"$serviceScript`" uninstall    (remove)"
 }
 Write-Host ""

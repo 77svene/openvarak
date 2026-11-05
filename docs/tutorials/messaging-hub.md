@@ -5,11 +5,11 @@ description: Smart inbox with message triage and auto-replies across channels
 
 # Messaging Hub
 
-This tutorial walks through `examples/messaging_hub/smart_inbox.py` — a script that connects OpenJarvis to messaging platforms, triages incoming messages by priority, drafts context-aware replies, and produces end-of-day summaries. It demonstrates channel integration, structured agent output, and memory-backed aggregation across multiple messages.
+This tutorial walks through `examples/messaging_hub/smart_inbox.py` — a script that connects OpenVarak to messaging platforms, triages incoming messages by priority, drafts context-aware replies, and produces end-of-day summaries. It demonstrates channel integration, structured agent output, and memory-backed aggregation across multiple messages.
 
 !!! tip "Prerequisites"
     - Python 3.10 or later
-    - OpenJarvis installed: `uv sync --extra dev` from the repository root
+    - OpenVarak installed: `uv sync --extra dev` from the repository root
     - An inference engine running (Ollama with `qwen3:8b` pulled, or cloud API keys)
     - For live channel mode: channel-specific credentials (see [Setting Up Real Channels](#setting-up-real-channels))
 
@@ -141,7 +141,7 @@ The `think` tool lets the agent reason internally before committing to a categor
 
 === "Other Channels"
 
-    OpenJarvis supports LINE, Viber, Mastodon, Rocket.Chat, Zulip, XMPP, Twitch, Nostr, and more. List all available channels:
+    OpenVarak supports LINE, Viber, Mastodon, Rocket.Chat, Zulip, XMPP, Twitch, Nostr, and more. List all available channels:
 
     ```bash title="Terminal"
     jarvis channel list
@@ -171,8 +171,8 @@ tools = ["think", "memory_store", "memory_search"]
 You can load this recipe programmatically:
 
 ```python title="Loading the messaging recipe"
-from openjarvis.recipes import load_recipe
-from openjarvis import SystemBuilder
+from openvarak.recipes import load_recipe
+from openvarak import SystemBuilder
 
 recipe = load_recipe("examples/messaging_hub/messaging.toml")
 system = SystemBuilder(**recipe.to_builder_kwargs()).build()
@@ -199,14 +199,14 @@ You can also add domain rules in the system prompt via `messaging.toml` — for 
 
 ## Scheduling the Daily Summary
 
-After processing all messages, the end-of-day summary call runs immediately in the script. For production use, schedule it independently via the OpenJarvis scheduler:
+After processing all messages, the end-of-day summary call runs immediately in the script. For production use, schedule it independently via the OpenVarak scheduler:
 
 ```bash title="Terminal"
 jarvis scheduler create "Daily inbox summary" \
     --type cron --value "0 17 * * *"
 ```
 
-Or use the operator recipe pattern to run a persistent triage agent on a schedule. See the operator recipes in `src/openjarvis/recipes/data/operators/` for ready-made examples.
+Or use the operator recipe pattern to run a persistent triage agent on a schedule. See the operator recipes in `src/openvarak/recipes/data/operators/` for ready-made examples.
 
 ## See Also
 

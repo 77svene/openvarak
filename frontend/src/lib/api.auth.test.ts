@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // every data-plane call. These tests cover the pure helpers (getApiKey,
 // authHeaders) that source the key and build the header.
 
-const SETTINGS_KEY = 'openjarvis-settings';
+const SETTINGS_KEY = 'openvarak-settings';
 const fetchMock = vi.fn<typeof fetch>();
 
 // Minimal in-memory localStorage stub so the helpers can run under node
@@ -52,7 +52,7 @@ describe('getApiKey', () => {
     expect(getApiKey()).toBe('');
   });
 
-  it('reads apiKey from the openjarvis-settings localStorage blob', async () => {
+  it('reads apiKey from the openvarak-settings localStorage blob', async () => {
     localStorage.setItem(
       SETTINGS_KEY,
       JSON.stringify({ apiUrl: 'http://x', apiKey: 'sk-local-123' }),

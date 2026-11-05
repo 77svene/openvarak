@@ -2,8 +2,8 @@
 # jarvis-wrapper.sh — symlinked to ~/.local/bin/jarvis.
 # Activates the managed venv and execs the real jarvis CLI.
 
-OPENJARVIS_HOME="${OPENJARVIS_HOME:-$HOME/.openjarvis}"
-VENV="$OPENJARVIS_HOME/.venv"
+OPENVARAK_HOME="${OPENVARAK_HOME:-$HOME/.openvarak}"
+VENV="$OPENVARAK_HOME/.venv"
 
 if [[ ! -d "$VENV" ]]; then
     echo "jarvis: venv not found at $VENV" >&2

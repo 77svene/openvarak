@@ -7,13 +7,13 @@ A multi-hop research agent that searches across your indexed documents, cross-re
 ### 1. Install and initialize
 
 ```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
+git clone https://github.com/77svene/openvarak.git
+cd OpenVarak
 uv sync --extra dev
 jarvis init --preset deep-research --force
 ```
 
-This writes a pre-configured `~/.openjarvis/config.toml` for the deep research agent.
+This writes a pre-configured `~/.openvarak/config.toml` for the deep research agent.
 
 ### 2. Index your documents
 
@@ -26,7 +26,7 @@ jarvis memory index ./docs/
 jarvis memory index ~/Documents/papers/
 ```
 
-OpenJarvis chunks the content and stores it in a local SQLite/FTS5 database. Supported formats include `.txt`, `.md`, `.pdf`, `.py`, `.json`, `.csv`, and more.
+OpenVarak chunks the content and stores it in a local SQLite/FTS5 database. Supported formats include `.txt`, `.md`, `.pdf`, `.py`, `.json`, `.csv`, and more.
 
 ### 3. Ask a research question
 
@@ -63,7 +63,7 @@ jarvis memory stats
 
 ## Configuration Reference
 
-The preset writes this to `~/.openjarvis/config.toml`:
+The preset writes this to `~/.openvarak/config.toml`:
 
 ```toml
 [engine]
@@ -160,6 +160,6 @@ Smaller chunk sizes work better for code, where each function or class is a natu
 
 **Slow responses** -- The agent makes multiple search passes. Each turn involves a model call. Reduce `max_turns` or use a smaller model (`qwen3.5:4b`) for faster but less thorough results.
 
-**Web search not working** -- The `web_search` tool needs no API key by default; it uses the You.com keyless free tier, which is rate limited per IP. Set `YOUDOTCOM_API_KEY` (free key at [you.com/platform](https://you.com/platform?utm_source=open-jarvis-openjarvis&utm_medium=oss_integration&utm_campaign=2026-09-oss-integrations&utm_content=docs)) for higher limits, or install Tavily with `uv sync --extra tools-search` and set `TAVILY_API_KEY`. Set `SERPLY_API_KEY` ([serply.io](https://serply.io)) to search through Google itself, which is the only engine here that honours Google operators such as `site:` and `after:` in a research query. Set `FIRECRAWL_API_KEY` ([firecrawl.dev](https://www.firecrawl.dev/app/api-keys?utm_source=openjarvis&utm_medium=integration)) to have URL lookups, including PDFs, return markdown. A `WARNING` naming the failed engine is logged whenever search drops to the DuckDuckGo fallback.
+**Web search not working** -- The `web_search` tool needs no API key by default; it uses the You.com keyless free tier, which is rate limited per IP. Set `YOUDOTCOM_API_KEY` (free key at [you.com/platform](https://you.com/platform?utm_source=open-jarvis-openvarak&utm_medium=oss_integration&utm_campaign=2026-09-oss-integrations&utm_content=docs)) for higher limits, or install Tavily with `uv sync --extra tools-search` and set `TAVILY_API_KEY`. Set `SERPLY_API_KEY` ([serply.io](https://serply.io)) to search through Google itself, which is the only engine here that honours Google operators such as `site:` and `after:` in a research query. Set `FIRECRAWL_API_KEY` ([firecrawl.dev](https://www.firecrawl.dev/app/api-keys?utm_source=openvarak&utm_medium=integration)) to have URL lookups, including PDFs, return markdown. A `WARNING` naming the failed engine is logged whenever search drops to the DuckDuckGo fallback.
 
 **Wrong chunks retrieved** -- Try re-indexing with different chunk sizes. For technical documents, smaller chunks (`256`) often retrieve more precisely. For narrative text, larger chunks (`1024`) preserve more context.

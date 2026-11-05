@@ -1,4 +1,4 @@
-"""Tests for the Rich display helpers in openjarvis.evals.core.display."""
+"""Tests for the Rich display helpers in openvarak.evals.core.display."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from openjarvis.evals.core.display import (
+from openvarak.evals.core.display import (
     print_banner,
     print_completion,
     print_metrics_table,
@@ -16,7 +16,7 @@ from openjarvis.evals.core.display import (
     print_subject_table,
     print_suite_summary,
 )
-from openjarvis.evals.core.types import MetricStats, RunSummary
+from openvarak.evals.core.types import MetricStats, RunSummary
 
 
 def _make_console() -> tuple[Console, StringIO]:
@@ -63,7 +63,7 @@ class TestPrintBanner:
         console, buf = _make_console()
         print_banner(console)
         output = buf.getvalue()
-        assert "OpenJarvis" in output or "___" in output
+        assert "OpenVarak" in output or "___" in output
 
     def test_contains_version(self):
         console, buf = _make_console()

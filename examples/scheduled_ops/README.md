@@ -1,6 +1,6 @@
 # Scheduled Personal Ops
 
-This tutorial demonstrates how to use OpenJarvis to run **autonomous scheduled agents** that perform recurring personal tasks on a cron-like schedule.
+This tutorial demonstrates how to use OpenVarak to run **autonomous scheduled agents** that perform recurring personal tasks on a cron-like schedule.
 
 ## What This Demonstrates
 
@@ -88,8 +88,8 @@ uv run python examples/scheduled_ops/gym_scheduler.py --register --gym "Planet F
 This uses `TaskScheduler` and `SchedulerStore` directly:
 
 ```python
-from openjarvis.scheduler import TaskScheduler
-from openjarvis.scheduler.store import SchedulerStore
+from openvarak.scheduler import TaskScheduler
+from openvarak.scheduler.store import SchedulerStore
 
 store = SchedulerStore()
 scheduler = TaskScheduler(store)
@@ -112,7 +112,7 @@ To send results to a Slack channel (or any other supported channel), pipe the ou
 uv run python examples/scheduled_ops/daily_digest.py | jarvis channel send slack
 
 # Or add channel output inside the script:
-# from openjarvis.channels import ChannelRegistry
+# from openvarak.channels import ChannelRegistry
 # channel = ChannelRegistry.create("slack", webhook_url="https://hooks.slack.com/...")
 # channel.send(response)
 ```
@@ -125,5 +125,5 @@ See `jarvis channel list` for all available channels.
 - **Review window**: Use `--days 14` with `code_review.py` for a two-week review cycle.
 - **Different agents**: Swap `orchestrator` for `native_react` (or vice versa) in the scripts to compare agent behavior.
 - **Add tools**: Extend the `tools` list in any script (e.g., add `"calculator"` or `"file_write"` for saving reports to disk).
-- **Model selection**: Use `--model` to target a specific model, or let OpenJarvis auto-select from what is available.
+- **Model selection**: Use `--model` to target a specific model, or let OpenVarak auto-select from what is available.
 - **Cron expressions**: Standard five-field cron syntax is supported. Install `croniter` for full expression parsing; without it, basic hour/minute patterns still work.

@@ -14,7 +14,7 @@ from unittest import mock
 
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
+from openvarak.cli import cli
 
 _NO_DL = "--no-download"
 
@@ -30,12 +30,12 @@ class TestInitConfig:
         supplied_content = '[engine]\nname = "ollama"\n'
         provided.write_text(supplied_content, encoding="utf-8")
 
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"  # absent -> passes the exists() guard
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(
                 cli, ["init", "--config", str(provided), _NO_DL]
@@ -52,13 +52,13 @@ class TestInitConfig:
         provided = tmp_path / "some-config.toml"
         supplied_content = '[engine]\nname = "ollama"\n'
         provided.write_text(supplied_content, encoding="utf-8")
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
 
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(
                 cli,

@@ -6,9 +6,9 @@ import time
 
 import pytest
 
-from openjarvis.core.types import TelemetryRecord
-from openjarvis.telemetry.aggregator import TelemetryAggregator
-from openjarvis.telemetry.store import TelemetryStore
+from openvarak.core.types import TelemetryRecord
+from openvarak.telemetry.aggregator import TelemetryAggregator
+from openvarak.telemetry.store import TelemetryStore
 
 
 class TestTokensPerJouleStorage:

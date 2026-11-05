@@ -1,0 +1,57 @@
+# Desktop profile: select ONE local backend and set the exact installed model id.
+[engine]
+default = "ollama"
+[engine.ollama]
+host = "http://127.0.0.1:11434"
+[engine.vllm]
+host = "http://127.0.0.1:8000"
+[engine.sglang]
+host = "http://127.0.0.1:30000"
+[engine.llamacpp]
+host = "http://127.0.0.1:8080"
+
+[intelligence]
+default_model = "qwen3.5:9b"
+max_tokens = 4096
+
+[desktop]
+enabled = true
+agent_type = "operative"
+local_model = "qwen3.5:9b"
+# Tune for the loaded model, quantization, available VRAM, and KV-cache size.
+local_context_tokens = 16384
+cloud_enabled = true
+cloud_model = "openrouter/auto"
+webhook_port = 8765
+webhook_token_env = "VARAK_WEBHOOK_TOKEN"
+queue_size = 128
+skills_enabled = true
+skill_image = "python:3.12-slim"
+self_heal_threshold = 3
+
+[cluster]
+enabled = false
+remote_nodes = []
+
+[tools]
+enabled = "calculator,file_read,file_write,web_search,shell_exec"
+[tools.storage]
+default_backend = "hybrid_persistent"
+# db_path defaults to ~/.openvarak/memory.db (or OPENVARAK_HOME/memory.db).
+supabase_enabled = false
+supabase_url_env = "SUPABASE_URL"
+supabase_key_env = "SUPABASE_SERVICE_ROLE_KEY"
+sync_interval_seconds = 5.0
+
+[agent]
+default_agent = "operative"
+max_turns = 25
+[telemetry]
+enabled = false
+gpu_metrics = false
+[analytics]
+enabled = false
+[traces]
+enabled = false
+[scheduler]
+enabled = false

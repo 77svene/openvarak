@@ -1,0 +1,32 @@
+[package]
+name = "openvarak-python"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "openvarak_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+openvarak-core = { path = "../openvarak-core" }
+openvarak-engine = { path = "../openvarak-engine" }
+openvarak-security = { path = "../openvarak-security" }
+openvarak-tools = { path = "../openvarak-tools" }
+openvarak-agents = { path = "../openvarak-agents" }
+openvarak-traces = { path = "../openvarak-traces" }
+openvarak-telemetry = { path = "../openvarak-telemetry" }
+openvarak-learning = { path = "../openvarak-learning" }
+openvarak-mcp = { path = "../openvarak-mcp" }
+openvarak-sessions = { path = "../openvarak-sessions" }
+openvarak-workflow = { path = "../openvarak-workflow" }
+openvarak-skills = { path = "../openvarak-skills" }
+openvarak-recipes = { path = "../openvarak-recipes" }
+openvarak-templates = { path = "../openvarak-templates" }
+openvarak-a2a = { path = "../openvarak-a2a" }
+openvarak-scheduler = { path = "../openvarak-scheduler" }
+pyo3 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+once_cell = { workspace = true }
+parking_lot = { workspace = true }

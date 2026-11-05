@@ -6,28 +6,28 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
-from openjarvis.cli._model_switch import (
+from openvarak.cli._model_switch import (
     interactive_pick_model,
     resolve_chat_cli_model,
     variant_preset_model,
 )
-from openjarvis.cli._runtime_panel import (
+from openvarak.cli._runtime_panel import (
     ChatRuntimeOptions,
     interactive_pick_runtime_options,
     runtime_cli_options,
     tty_wants_runtime_panel,
 )
-from openjarvis.cli.chat_cmd import chat
-from openjarvis.core.config import JarvisConfig
+from openvarak.cli.chat_cmd import chat
+from openvarak.core.config import JarvisConfig
 
 
 def _chat_patches(engine: MagicMock, config: JarvisConfig | None = None):
     cfg = config or JarvisConfig()
     cfg.intelligence.default_model = "default-m"
     return (
-        patch("openjarvis.cli.chat_cmd.load_config", return_value=cfg),
-        patch("openjarvis.engine.get_engine", return_value=("ollama", engine)),
-        patch("openjarvis.intelligence.register_builtin_models"),
+        patch("openvarak.cli.chat_cmd.load_config", return_value=cfg),
+        patch("openvarak.engine.get_engine", return_value=("ollama", engine)),
+        patch("openvarak.intelligence.register_builtin_models"),
     )
 
 
@@ -72,11 +72,11 @@ class TestModelSwitchBranches:
         eng = MagicMock()
         with (
             patch(
-                "openjarvis.engine.discover_engines",
+                "openvarak.engine.discover_engines",
                 return_value=[("ollama", eng)],
             ),
             patch(
-                "openjarvis.engine.discover_models",
+                "openvarak.engine.discover_models",
                 return_value={"ollama": ["discovered"]},
             ),
         ):
@@ -165,15 +165,15 @@ class TestChatPickerIntegration:
         cfg = JarvisConfig()
         cfg.intelligence.default_model = "gpt-4o-mini"
         with (
-            patch("openjarvis.cli.chat_cmd.load_config", return_value=cfg),
-            patch("openjarvis.engine.get_engine", return_value=("cloud", engine)),
-            patch("openjarvis.intelligence.register_builtin_models"),
+            patch("openvarak.cli.chat_cmd.load_config", return_value=cfg),
+            patch("openvarak.engine.get_engine", return_value=("cloud", engine)),
+            patch("openvarak.intelligence.register_builtin_models"),
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=True,
             ) as wants_panel,
         ):
@@ -198,11 +198,11 @@ class TestChatPickerIntegration:
         cfg = JarvisConfig()
         cfg.intelligence.default_model = "gpt-4o-mini"
         with (
-            patch("openjarvis.cli.chat_cmd.load_config", return_value=cfg),
-            patch("openjarvis.engine.get_engine", return_value=("cloud", engine)),
-            patch("openjarvis.intelligence.register_builtin_models"),
+            patch("openvarak.cli.chat_cmd.load_config", return_value=cfg),
+            patch("openvarak.engine.get_engine", return_value=("cloud", engine)),
+            patch("openvarak.intelligence.register_builtin_models"),
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
         ):
@@ -221,14 +221,14 @@ class TestChatPickerIntegration:
         cfg = JarvisConfig()
         cfg.intelligence.default_model = "default-m"
         with (
-            patch("openjarvis.cli.chat_cmd.load_config", return_value=cfg),
+            patch("openvarak.cli.chat_cmd.load_config", return_value=cfg),
             patch(
-                "openjarvis.engine.get_engine",
+                "openvarak.engine.get_engine",
                 return_value=("[bold]engine[/bold]", engine),
             ),
-            patch("openjarvis.intelligence.register_builtin_models"),
+            patch("openvarak.intelligence.register_builtin_models"),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=False,
             ),
         ):
@@ -244,9 +244,9 @@ class TestChatPickerIntegration:
 
     def test_native_react_gets_engine_options_via_setattr(self) -> None:
         """NativeReActAgent rejects engine_options kwarg; chat uses setattr."""
-        import openjarvis.agents  # noqa: F401
-        from openjarvis.agents.native_react import NativeReActAgent
-        from openjarvis.core.registry import AgentRegistry
+        import openvarak.agents  # noqa: F401
+        from openvarak.agents.native_react import NativeReActAgent
+        from openvarak.core.registry import AgentRegistry
 
         if not AgentRegistry.contains("native_react"):
             AgentRegistry.register_value("native_react", NativeReActAgent)
@@ -262,11 +262,11 @@ class TestChatPickerIntegration:
             p[1],
             p[2],
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=False,
             ),
         ):
@@ -288,15 +288,15 @@ class TestChatPickerIntegration:
             p[1],
             p[2],
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=True,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._model_switch.interactive_pick_model",
+                "openvarak.cli._model_switch.interactive_pick_model",
                 return_value="picked-model",
             ),
         ):
@@ -318,11 +318,11 @@ class TestChatPickerIntegration:
             p[1],
             p[2],
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=True,
             ),
         ):
@@ -358,15 +358,15 @@ class TestChatPickerIntegration:
             p[1],
             p[2],
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._model_switch.resolve_chat_cli_model",
+                "openvarak.cli._model_switch.resolve_chat_cli_model",
                 return_value="",
             ),
         ):
@@ -385,11 +385,11 @@ class TestChatPickerIntegration:
             p[1],
             p[2],
             patch(
-                "openjarvis.cli._model_switch.tty_wants_model_picker",
+                "openvarak.cli._model_switch.tty_wants_model_picker",
                 return_value=False,
             ),
             patch(
-                "openjarvis.cli._runtime_panel.tty_wants_runtime_panel",
+                "openvarak.cli._runtime_panel.tty_wants_runtime_panel",
                 return_value=False,
             ),
         ):

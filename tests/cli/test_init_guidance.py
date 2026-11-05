@@ -7,8 +7,8 @@ from unittest import mock
 
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
-from openjarvis.cli.init_cmd import _next_steps_text
+from openvarak.cli import cli
+from openvarak.cli.init_cmd import _next_steps_text
 
 _NO_DL = "--no-download"
 
@@ -16,12 +16,12 @@ _NO_DL = "--no-download"
 class TestInitShowsNextSteps:
     def test_init_shows_next_steps(self, tmp_path: Path) -> None:
         """Init command prints next-steps panel after writing config."""
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "llamacpp", _NO_DL])
         assert result.exit_code == 0
@@ -31,12 +31,12 @@ class TestInitShowsNextSteps:
 
     def test_init_output_shows_toml_sections_literally(self, tmp_path: Path) -> None:
         """Init output should render TOML section headers like [engine] literally."""
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "llamacpp", _NO_DL])
         assert result.exit_code == 0
@@ -91,12 +91,12 @@ class TestNextStepsMlx:
 class TestMinimalConfig:
     def test_init_generates_minimal_by_default(self, tmp_path: Path) -> None:
         """Default jarvis init produces a short config."""
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "ollama", _NO_DL])
         assert result.exit_code == 0
@@ -109,12 +109,12 @@ class TestMinimalConfig:
 
     def test_init_full_generates_verbose_config(self, tmp_path: Path) -> None:
         """jarvis init --full produces the full reference config."""
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(
                 cli,
@@ -130,12 +130,12 @@ class TestMinimalConfig:
 
 class TestInitDownloadPrompt:
     def test_init_shows_download_prompt(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(
                 cli, ["init", "--engine", "ollama"], input="n\n"
@@ -145,12 +145,12 @@ class TestInitDownloadPrompt:
         assert "now?" in result.output
 
     def test_init_no_download_flag_skips_prompt(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "ollama", _NO_DL])
         assert result.exit_code == 0
@@ -159,13 +159,13 @@ class TestInitDownloadPrompt:
 
 class TestInitEmptyModelFallback:
     def test_init_no_model_shows_warning(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.recommend_model", return_value=""),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.recommend_model", return_value=""),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "llamacpp"])
         assert result.exit_code == 0
@@ -190,16 +190,16 @@ class TestNextStepsExoNexa:
 
 class TestInitDownloadDispatch:
     def test_init_ollama_download_calls_ollama_pull(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
             mock.patch(
-                "openjarvis.cli.init_cmd.ollama_pull",
+                "openvarak.cli.init_cmd.ollama_pull",
                 return_value=True,
             ) as mock_pull,
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(
                 cli, ["init", "--engine", "ollama"], input="y\n"
@@ -208,12 +208,12 @@ class TestInitDownloadDispatch:
         mock_pull.assert_called_once()
 
     def test_init_vllm_shows_auto_download_message(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
         ):
             result = CliRunner().invoke(cli, ["init", "--engine", "vllm"], input="y\n")
         assert result.exit_code == 0
@@ -222,14 +222,14 @@ class TestInitDownloadDispatch:
 
 class TestInitPrivacyHook:
     def test_init_shows_privacy_summary(self, tmp_path: Path) -> None:
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner") as MockScanner,
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner") as MockScanner,
         ):
-            from openjarvis.cli.scan_cmd import ScanResult
+            from openvarak.cli.scan_cmd import ScanResult
 
             instance = MockScanner.return_value
             instance.run_quick.return_value = [

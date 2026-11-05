@@ -1,16 +1,16 @@
 ---
 title: Code Snippets
-description: Copy-paste patterns for common OpenJarvis tasks
+description: Copy-paste patterns for common OpenVarak tasks
 ---
 
 # Code Snippets
 
-Ready-to-use patterns for the most common OpenJarvis tasks. Each snippet is self-contained and copy-pasteable.
+Ready-to-use patterns for the most common OpenVarak tasks. Each snippet is self-contained and copy-pasteable.
 
 ## Ask a Question (3 lines)
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 with Jarvis() as j:
     print(j.ask("What is the capital of France?"))
@@ -20,7 +20,7 @@ with Jarvis() as j:
 
 ```python
 import asyncio
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 async def main():
     with Jarvis() as j:
@@ -33,7 +33,7 @@ asyncio.run(main())
 ## Agent with Tools (5 lines)
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 with Jarvis() as j:
     result = j.ask_full(
@@ -47,7 +47,7 @@ with Jarvis() as j:
 ## Memory: Index + Search (6 lines)
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 with Jarvis() as j:
     j.memory.index("./docs/", chunk_size=512)
@@ -81,16 +81,16 @@ Any OpenAI-compatible client works against this endpoint.
 ## Docker Deployment (2 commands)
 
 ```bash
-docker build -t openjarvis .
-docker run -p 8000:8000 openjarvis serve --host 0.0.0.0
+docker build -t openvarak .
+docker run -p 8000:8000 openvarak serve --host 0.0.0.0
 ```
 
 ## Custom Tool (10 lines)
 
 ```python
-from openjarvis.core.registry import ToolRegistry
-from openjarvis.core.types import ToolResult
-from openjarvis.tools._stubs import BaseTool, ToolSpec
+from openvarak.core.registry import ToolRegistry
+from openvarak.core.types import ToolResult
+from openvarak.tools._stubs import BaseTool, ToolSpec
 
 @ToolRegistry.register("my_tool")
 class MyTool(BaseTool):
@@ -108,7 +108,7 @@ class MyTool(BaseTool):
 ## Multi-Model Routing (5 lines)
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 j = Jarvis()
 # Router automatically selects the best model per query
@@ -120,7 +120,7 @@ j.close()
 ## Human-in-the-Loop Confirmation (6 lines)
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 with Jarvis() as j:
     result = j.ask_full(

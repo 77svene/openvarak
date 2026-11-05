@@ -1,7 +1,7 @@
 # Data-boundary scan
 
 `jarvis scan --data-boundaries` reports application-level data boundaries in the
-current OpenJarvis configuration. It complements the existing host/environment
+current OpenVarak configuration. It complements the existing host/environment
 scan, which checks OS posture such as disk encryption, cloud-sync agents, remote
 access tools, and exposed engine ports.
 
@@ -63,7 +63,7 @@ The current checks cover:
 
 Configured database paths (for example `traces.db_path` or `memory.db_path`)
 are resolved from config when set, not only the default locations under the
-OpenJarvis home directory.
+OpenVarak home directory.
 
 ### A2A configuration and the built-in server
 
@@ -176,8 +176,8 @@ users know that browser/Tauri credential storage must be reviewed separately.
 ## Configuration resolution
 
 The scan follows the same explicit configuration override used by the runtime:
-if `OPENJARVIS_CONFIG` is set, that file is audited. Otherwise the scan uses
-the default OpenJarvis config path under the resolved OpenJarvis home. If the
+if `OPENVARAK_CONFIG` is set, that file is audited. Otherwise the scan uses
+the default OpenVarak config path under the resolved OpenVarak home. If the
 home directory cannot be resolved, the command reports a `config-root-error`
 finding instead of crashing.
 

@@ -17,7 +17,7 @@ Every skill is a tool. Skills appear in a lightweight catalog in the agent's sys
 | **Skill** | A directory containing `skill.toml` (structured pipeline), `SKILL.md` (markdown instructions), or both |
 | **SkillManager** | Central coordinator for discovery, resolution, catalog generation, and tool wrapping |
 | **SkillTool** | Adapter that wraps any skill as a `BaseTool` so agents can invoke it |
-| **Overlay** | Sidecar file at `~/.openjarvis/learning/skills/` storing optimized descriptions and few-shot examples |
+| **Overlay** | Sidecar file at `~/.openvarak/learning/skills/` storing optimized descriptions and few-shot examples |
 | **Source** | A resolver for importing skills from Hermes Agent, OpenClaw, or any GitHub repo |
 
 ## Quick Start
@@ -72,7 +72,7 @@ Pipeline skills define a sequence of tool calls that execute deterministically:
 name = "research-and-summarize"
 version = "0.1.0"
 description = "Search the web and produce a structured summary"
-author = "openjarvis"
+author = "openvarak"
 tags = ["research", "summarization"]
 required_capabilities = ["network:fetch"]
 depends = ["summarize"]
@@ -100,9 +100,9 @@ name: code-explainer
 description: Explain code in plain language with examples
 license: MIT
 metadata:
-  openjarvis:
+  openvarak:
     version: "0.1.0"
-    author: openjarvis
+    author: openvarak
     tags: [coding, explanation]
 ---
 
@@ -165,7 +165,7 @@ jarvis skill install github:Xquik-dev/hermes-tweet/skills/hermes-tweet --url htt
 
 ### Config-Driven Auto Import
 
-Add sources to `~/.openjarvis/config.toml` for automatic syncing:
+Add sources to `~/.openvarak/config.toml` for automatic syncing:
 
 ```toml
 [skills]
@@ -241,17 +241,17 @@ Agents handle both skill types correctly:
 
 ## Skill Discovery from Traces
 
-OpenJarvis can automatically mine your trace history for recurring tool sequences and surface them as candidate skills:
+OpenVarak can automatically mine your trace history for recurring tool sequences and surface them as candidate skills:
 
 ```bash
 # Preview discovered patterns without writing
 jarvis skill discover --dry-run --min-frequency 3
 
-# Write discovered skills to ~/.openjarvis/skills/discovered/
+# Write discovered skills to ~/.openvarak/skills/discovered/
 jarvis skill discover
 ```
 
-Discovered skills land in `~/.openjarvis/skills/discovered/` and automatically appear in `jarvis skill list` on the next session.
+Discovered skills land in `~/.openvarak/skills/discovered/` and automatically appear in `jarvis skill list` on the next session.
 
 ## Skill Optimization
 
@@ -273,7 +273,7 @@ jarvis optimize skills --policy gepa --min-traces 3
 jarvis skill show-overlay research-and-summarize
 ```
 
-Optimization results are stored as sidecar overlays at `~/.openjarvis/learning/skills/<skill-name>/optimized.toml`. They override the skill's description and add few-shot examples to the agent's system prompt. The original skill files are never modified.
+Optimization results are stored as sidecar overlays at `~/.openvarak/learning/skills/<skill-name>/optimized.toml`. They override the skill's description and add few-shot examples to the agent's system prompt. The original skill files are never modified.
 
 ### Auto-Optimization
 
@@ -320,7 +320,7 @@ Results are written to `docs/superpowers/results/pinchbench-skills-eval-{date}.m
 
 | Tier | Source | Verification | Runtime |
 |------|--------|-------------|---------|
-| **Bundled** | Ships with OpenJarvis | Implicit trust | Full access within declared capabilities |
+| **Bundled** | Ships with OpenVarak | Implicit trust | Full access within declared capabilities |
 | **Indexed** | In official skill index, signed | SHA256 + Ed25519 | Capability-gated |
 | **Unreviewed** | Arbitrary GitHub URL | SHA256 only | Capability-gated + sandbox warning |
 | **Workspace** | Local `./skills/` directory | None (user code) | Trusted |
@@ -369,7 +369,7 @@ The SkillManager builds a dependency graph at discovery time and validates:
 ```toml
 [skills]
 enabled = true                    # enable/disable the skill system
-skills_dir = "~/.openjarvis/skills/"  # where skills are installed
+skills_dir = "~/.openvarak/skills/"  # where skills are installed
 active = "*"                      # which skills to activate ("*" = all)
 auto_discover = true              # scan skills_dir on startup
 auto_sync = false                 # pull from configured sources on startup
@@ -395,7 +395,7 @@ auto_optimize = false             # opt-in automatic optimization
 optimizer = "dspy"                # "dspy" or "gepa"
 min_traces_per_skill = 20         # minimum traces before optimizing
 optimization_interval_seconds = 86400  # at most once per day
-overlay_dir = "~/.openjarvis/learning/skills/"
+overlay_dir = "~/.openvarak/learning/skills/"
 ```
 
 ## Name Precedence
@@ -403,8 +403,8 @@ overlay_dir = "~/.openjarvis/learning/skills/"
 When the same skill name exists in multiple locations, closest scope wins:
 
 1. **Workspace** `./skills/` (highest priority)
-2. **User** `~/.openjarvis/skills/`
-3. **Bundled** (shipped with OpenJarvis)
+2. **User** `~/.openvarak/skills/`
+3. **Bundled** (shipped with OpenVarak)
 
 ## CLI Reference
 

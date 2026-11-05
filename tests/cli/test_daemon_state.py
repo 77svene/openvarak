@@ -13,7 +13,7 @@ import threading
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import daemon_cmd
+from openvarak.cli import daemon_cmd
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def test_bound_address_prefers_recorded_over_config(state_dir):
 
 
 def test_bound_address_falls_back_to_config(state_dir):
-    from openjarvis.core.config import load_config
+    from openvarak.core.config import load_config
 
     config = load_config()
     host, port = daemon_cmd._bound_address()

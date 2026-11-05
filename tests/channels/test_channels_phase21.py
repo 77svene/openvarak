@@ -7,18 +7,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openjarvis.channels._stubs import ChannelStatus
-from openjarvis.channels.line_channel import LineChannel
-from openjarvis.channels.mastodon_channel import MastodonChannel
-from openjarvis.channels.messenger_channel import MessengerChannel
-from openjarvis.channels.nostr_channel import NostrChannel
-from openjarvis.channels.reddit_channel import RedditChannel
-from openjarvis.channels.rocketchat_channel import RocketChatChannel
-from openjarvis.channels.twitch_channel import TwitchChannel
-from openjarvis.channels.viber_channel import ViberChannel
-from openjarvis.channels.xmpp_channel import XMPPChannel
-from openjarvis.channels.zulip_channel import ZulipChannel
-from openjarvis.core.registry import ChannelRegistry
+from openvarak.channels._stubs import ChannelStatus
+from openvarak.channels.line_channel import LineChannel
+from openvarak.channels.mastodon_channel import MastodonChannel
+from openvarak.channels.messenger_channel import MessengerChannel
+from openvarak.channels.nostr_channel import NostrChannel
+from openvarak.channels.reddit_channel import RedditChannel
+from openvarak.channels.rocketchat_channel import RocketChatChannel
+from openvarak.channels.twitch_channel import TwitchChannel
+from openvarak.channels.viber_channel import ViberChannel
+from openvarak.channels.xmpp_channel import XMPPChannel
+from openvarak.channels.zulip_channel import ZulipChannel
+from openvarak.core.registry import ChannelRegistry
 
 # (class, registry key, library module name, pip package name)
 CHANNELS = [

@@ -9,15 +9,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openjarvis.core.events import EventBus, EventType
-from openjarvis.core.types import Message, Role, TelemetryRecord
-from openjarvis.telemetry.aggregator import TelemetryAggregator
-from openjarvis.telemetry.instrumented_engine import (
+from openvarak.core.events import EventBus, EventType
+from openvarak.core.types import Message, Role, TelemetryRecord
+from openvarak.telemetry.aggregator import TelemetryAggregator
+from openvarak.telemetry.instrumented_engine import (
     InstrumentedEngine,
     _compute_itl_stats,
     _percentile,
 )
-from openjarvis.telemetry.store import TelemetryStore
+from openvarak.telemetry.store import TelemetryStore
 
 # ---------------------------------------------------------------------------
 # Helpers

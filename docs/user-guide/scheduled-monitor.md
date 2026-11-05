@@ -7,13 +7,13 @@ A persistent operative agent that runs on a cron schedule, maintains state acros
 ### 1. Install and initialize
 
 ```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
+git clone https://github.com/77svene/openvarak.git
+cd OpenVarak
 uv sync --extra dev
 jarvis init --preset scheduled-monitor --force
 ```
 
-This writes a pre-configured `~/.openjarvis/config.toml` for the operative agent with scheduling support.
+This writes a pre-configured `~/.openvarak/config.toml` for the operative agent with scheduling support.
 
 ### 2. Start a local LLM via Ollama
 
@@ -102,7 +102,7 @@ jarvis scheduler stop
 
 ## Configuration Reference
 
-The preset writes this to `~/.openjarvis/config.toml`:
+The preset writes this to `~/.openvarak/config.toml`:
 
 ```toml
 [engine]
@@ -186,7 +186,7 @@ The operative agent differs from other agents in that it maintains state across 
 - **Memory storage**: The agent uses the `memory_store` tool to save notes, summaries, and observations. These persist in the local SQLite database and are available in future runs.
 - **Context injection**: With `context_from_memory = true`, the agent automatically receives relevant context from previous runs when it starts a new session.
 - **Accumulated knowledge**: Over time, the agent builds a progressively richer understanding of your data. A Monday run can reference notes from the previous Friday.
-- **All data stays local**: State is stored in `~/.openjarvis/` using the configured memory backend. Nothing leaves your machine.
+- **All data stays local**: State is stored in `~/.openvarak/` using the configured memory backend. Nothing leaves your machine.
 
 ## Troubleshooting
 

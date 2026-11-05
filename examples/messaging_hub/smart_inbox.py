@@ -91,10 +91,10 @@ def _print_table(results: list[dict[str, str]]) -> None:
 def _run_demo(model: str, engine_key: str) -> None:
     """Process sample messages through the agent for classification."""
     try:
-        from openjarvis import Jarvis
+        from openvarak import Jarvis
     except ImportError:
         click.echo(
-            "Error: openjarvis is not installed. "
+            "Error: openvarak is not installed. "
             "Install it with:  uv sync --extra dev",
             err=True,
         )
@@ -207,7 +207,7 @@ def _run_channel(channel: str, model: str, engine_key: str) -> None:
 
     # Demonstrate how the channel integration would work
     click.echo("Example integration code:\n")
-    click.echo("  from openjarvis import Jarvis")
+    click.echo("  from openvarak import Jarvis")
     click.echo(f'  j = Jarvis(model="{model}", engine_key="{engine_key}")')
     click.echo("  # Listen for incoming messages on the channel")
     click.echo(f'  # See: jarvis channel status  (to verify "{channel}" is connected)')

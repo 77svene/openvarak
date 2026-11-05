@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ── OpenJarvis: launch Claude via the cloud engine ────────────────────
+# ── OpenVarak: launch Claude via the cloud engine ────────────────────
 # Claude is a proprietary Anthropic model with no public weights, so it
-# cannot be served by Ollama. This script routes through OpenJarvis's
+# cannot be served by Ollama. This script routes through OpenVarak's
 # ``cloud`` engine, which speaks the Anthropic API directly.
 #
 # Usage:
@@ -13,7 +13,7 @@ set -euo pipefail
 #   ./scripts/launch-claude.sh -- --voice            # pass-through flags
 # ──────────────────────────────────────────────────────────────────────
 
-DEFAULT_MODEL="${OPENJARVIS_CLAUDE_MODEL:-claude-opus-4-6}"
+DEFAULT_MODEL="${OPENVARAK_CLAUDE_MODEL:-claude-opus-4-6}"
 
 MODEL="$DEFAULT_MODEL"
 if [[ $# -gt 0 && "$1" != "--" ]]; then

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import time
 
-from openjarvis.core.registry import ToolRegistry
-from openjarvis.tools.repl import ReplTool
+from openvarak.core.registry import ToolRegistry
+from openvarak.tools.repl import ReplTool
 
 
 class TestReplSpec:

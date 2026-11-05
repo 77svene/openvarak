@@ -7,7 +7,7 @@ from unittest import mock
 
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
+from openvarak.cli import cli
 
 _NO_DL = "--no-download"
 _READ_TEXT = Path.read_text
@@ -46,12 +46,12 @@ class TestInitDigestEncoding:
         is cp1252 on a default Windows install and cannot encode U+2500, so
         ``jarvis init --digest`` crashed with UnicodeEncodeError there.
         """
-        config_dir = tmp_path / ".openjarvis"
+        config_dir = tmp_path / ".openvarak"
         config_path = config_dir / "config.toml"
         with (
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
-            mock.patch("openjarvis.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
-            mock.patch("openjarvis.cli.init_cmd.PrivacyScanner"),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_DIR", config_dir),
+            mock.patch("openvarak.cli.init_cmd.DEFAULT_CONFIG_PATH", config_path),
+            mock.patch("openvarak.cli.init_cmd.PrivacyScanner"),
             # Emulate Windows' non-UTF default locale on every platform. Any
             # init-path read/write that omits encoding now uses cp1252 and the
             # box-drawing rule raises exactly the original Unicode error.

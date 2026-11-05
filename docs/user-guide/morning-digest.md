@@ -4,11 +4,11 @@ A personalized daily briefing that collects data from your connected services, s
 
 ## Quickstart (5 minutes)
 
-### 1. Install and set up OpenJarvis
+### 1. Install and set up OpenVarak
 
 ```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
+git clone https://github.com/77svene/openvarak.git
+cd OpenVarak
 uv sync --extra dev
 ```
 
@@ -21,7 +21,7 @@ ollama pull qwen3.5:9b    # or any model you prefer
 
 ### 3. Configure the digest
 
-Edit `~/.openjarvis/config.toml`:
+Edit `~/.openvarak/config.toml`:
 
 ```toml
 [engine]
@@ -76,13 +76,13 @@ For Weather, GitHub, and News — save credential files directly:
 
 ```bash
 # Weather (OpenWeatherMap — free at https://openweathermap.org/api)
-echo '{"api_key": "YOUR_KEY", "location": "San Francisco,CA,US"}' > ~/.openjarvis/connectors/weather.json
+echo '{"api_key": "YOUR_KEY", "location": "San Francisco,CA,US"}' > ~/.openvarak/connectors/weather.json
 
 # GitHub notifications (token from https://github.com/settings/tokens)
-echo '{"token": "ghp_YOUR_TOKEN"}' > ~/.openjarvis/connectors/github.json
+echo '{"token": "ghp_YOUR_TOKEN"}' > ~/.openvarak/connectors/github.json
 
 # News RSS (no auth needed — configure your feeds)
-cat > ~/.openjarvis/connectors/news_rss.json << 'EOF'
+cat > ~/.openvarak/connectors/news_rss.json << 'EOF'
 {"feeds": [
   {"name": "Arxiv CS.AI", "url": "https://rss.arxiv.org/rss/cs.AI"},
   {"name": "TechCrunch", "url": "https://techcrunch.com/feed/"},
@@ -166,13 +166,13 @@ The `sections` list controls what the digest covers, in order of priority:
 
 ### Persona
 
-The `persona` field loads a prompt file from `configs/openjarvis/prompts/personas/{name}.md`. The default `jarvis` persona delivers briefings with dry British wit, prioritizes urgent items, and interprets health data as trends rather than raw numbers.
+The `persona` field loads a prompt file from `configs/openvarak/prompts/personas/{name}.md`. The default `jarvis` persona delivers briefings with dry British wit, prioritizes urgent items, and interprets health data as trends rather than raw numbers.
 
 To create a custom persona, add a new `.md` file in the personas directory.
 
 ### News Feeds
 
-Add any RSS or Atom feed to `~/.openjarvis/connectors/news_rss.json`:
+Add any RSS or Atom feed to `~/.openvarak/connectors/news_rss.json`:
 
 ```json
 {"feeds": [

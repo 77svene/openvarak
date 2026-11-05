@@ -1,184 +1,140 @@
-<div align="center">
-  <img alt="OpenJarvis" src="assets/OpenJarvis_Horizontal_Logo.png" width="400">
+# OpenVarak
 
-  <p><i>Personal AI, On Personal Devices.</i></p>
+A single-desktop autonomous agent runtime, forked from [OpenJarvis](https://github.com/open-jarvis/OpenJarvis).
+Python package: `openvarak`. Primary CLI: `varak`. License: Apache-2.0; upstream contributor credits are retained.
 
-  <p>
-    <a href="https://arxiv.org/abs/2605.17172"><img src="https://img.shields.io/badge/arXiv-2605.17172-b31b1b.svg" alt="arXiv"></a>
-    <a href="https://openjarvis.stanford.edu/"><img src="https://img.shields.io/badge/project-OpenJarvis-blue" alt="Project"></a>
-    <a href="https://open-jarvis.github.io/OpenJarvis/"><img src="https://img.shields.io/badge/docs-mkdocs-blue" alt="Docs"></a>
-    <img src="https://img.shields.io/badge/python-%3E%3D3.10-blue" alt="Python">
-    <img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License">
-    <a href="https://discord.gg/CMVBmDQ5Fj"><img src="https://img.shields.io/badge/discord-join-7289da?logo=discord&logoColor=white" alt="Discord"></a>
-    <a href="https://x.com/OpenJarvisAI"><img src="https://img.shields.io/badge/X-@OpenJarvisAI-black?logo=x&logoColor=white" alt="X / Twitter"></a>
-  </p>
-</div>
-
----
-
-<div align="center">
-  <img alt="OpenJarvis demo reel" src="assets/openjarvis_demo_reel.webp" width="75%">
-</div>
-
----
-
-> **[Documentation](https://open-jarvis.github.io/OpenJarvis/)**
->
-> **[Project Site](https://openjarvis.stanford.edu/)**
->
-> **[Paper](https://arxiv.org/abs/2605.17172)**
->
-> **[Leaderboard](https://open-jarvis.github.io/OpenJarvis/leaderboard/)**
->
-> **[Roadmap](https://open-jarvis.github.io/OpenJarvis/development/roadmap/)**
-
-## Why OpenJarvis?
-
-Personal AI agents are exploding in popularity, but nearly all of them still route intelligence through cloud APIs. Your "personal" AI continues to depend on someone else's server. At the same time, our [Intelligence Per Watt](https://www.intelligence-per-watt.ai/) research showed that local language models already handle 88.7% of single-turn chat and reasoning queries, with intelligence efficiency improving 5.3× from 2023 to 2025. The models and hardware are increasingly ready. What has been missing is the software stack to make local-first personal AI practical.
-
-OpenJarvis is that stack. It is a framework for local-first personal AI, built around three core ideas: shared primitives for building on-device agents; evaluations that treat energy, FLOPs, latency, and dollar cost as first-class constraints alongside accuracy; and a learning loop that improves models using local trace data. The goal is simple: make it possible to build personal AI agents that run locally by default, calling the cloud only when truly necessary. OpenJarvis aims to be both a research platform and a production foundation for local AI, in the spirit of PyTorch.
-
-## Installation
-
-Pick your platform and run one command. Each installer handles [uv](https://docs.astral.sh/uv/), the Python venv, Ollama, and a starter model — about 3 minutes on broadband.
-
-| Platform | One-liner |
-|---|---|
-| **macOS · Linux · WSL2** | `curl -fsSL https://open-jarvis.github.io/OpenJarvis/install.sh \| bash` |
-| **Native Windows** | `irm https://open-jarvis.github.io/OpenJarvis/install.ps1 \| iex` |
-| **Desktop GUI** | Download `.exe` / `.dmg` / `.deb` / `.rpm` / `.AppImage` from the [latest release](https://github.com/open-jarvis/OpenJarvis/releases) |
-
-Then `jarvis` to start. The Rust extension and larger models continue downloading in the background; `jarvis doctor` shows status.
-
-Platform-specific notes (WSL2 setup, native-Windows scheduled-task service, desktop prerequisites, manual / contributor install): see the [installation docs](https://open-jarvis.github.io/OpenJarvis/getting-started/install/).
-
-## Quick Start
+## Start on your desktop
 
 ```bash
-jarvis                          # start chatting (default: chat-simple)
-jarvis gui                      # start the graphical browser interface
-jarvis init --preset <name> --force  # replace config with a starter preset
+uv sync --extra browser
+uv run playwright install chromium
+uv run varak init
+# Edit ~/.openvarak/config.toml: select your local engine and installed model.
+uv run varak check
+uv run varak
 ```
 
-`jarvis gui` starts the local API server and frontend, then opens the graphical
-chat interface in your default browser. It requires Node.js 22+ and is
-available from a source checkout; packaged desktop installers are available
-from the [latest release](https://github.com/open-jarvis/OpenJarvis/releases).
+`varak` serves only `127.0.0.1:8765`. It starts without a running model server;
+actual tasks require the selected inference server. No engine discovery, GPU
+power polling, cron presets, or cloud client initialization occurs on this path.
+`varak ask "your task"` executes a single task using the same runtime.
+Use `varak --config path/to/profile.toml daemon` for an explicit profile.
 
-> Prefix `jarvis ...` with `uv run`, or `source .venv/bin/activate` first.
+The default profile is [configs/openvarak/desktop-autonomous.toml](configs/openvarak/desktop-autonomous.toml).
+A copy ships in the Python package, so installed wheels do not depend on a source checkout.
+The `jarvis` executable retains the legacy command suite during migration; it is deprecated.
 
-| Preset | What it does |
-|---|---|
-| `morning-digest-mac` / `morning-digest-linux` / `morning-digest-minimal` | Spoken daily briefing from email, calendar, health, news |
-| `deep-research` | Multi-hop research across indexed docs with citations |
-| `code-assistant` | Agent with code execution, file I/O, and shell access |
-| `scheduled-monitor` | Stateful agent on a schedule with memory |
-| `chat-simple` | Lightweight conversation, no tools |
+## Local GPU and cloud escalation
 
-Example:
+Select `ollama`, `vllm`, `sglang`, or `llamacpp` in `[engine]`; configure its nested
+host and the exact installed model ID in `[intelligence]`. Defaults point at
+loopback, and environment HTTP proxies are bypassed for desktop inference.
+
+Routine tool calls, parsing, RAG, and state checks stay local. A turn escalates
+only when its full estimated context plus tool schemas and output reservation
+exceeds `desktop.local_context_tokens`, its retry count reaches two, or it carries
+an explicit high-depth reasoning hint. Adjust the context budget for your model,
+quantization, VRAM, and KV cache. Token estimates are approximate; no fixed local
+percentage or model fit is guaranteed for every workload.
+
+Set `OPENROUTER_API_KEY` to enable eligible escalations. `desktop.cloud_model`
+uses an OpenRouter model ID (`openrouter/auto` by default). The router forwards the
+same messages and tool schemas, including tool-call IDs and reasoning metadata.
+No key is needed for routine local turns. Missing credentials produce a clear
+error when escalation is required; traces and jobs remain local.
+Set `desktop.cloud_enabled = false` for fully offline operation.
+
+`[cluster] enabled = false` rejects remote inference endpoints and performs no
+LAN discovery. To opt into a manually configured LAN endpoint, enable the block,
+list its exact URL in `remote_nodes`, and set the selected engine host to it.
+This is an endpoint hook, not distributed scheduling or automatic load balancing.
+
+## Trigger tasks immediately
 
 ```bash
-jarvis init --preset morning-digest-mac --force
-jarvis connect gdrive          # one OAuth covers Gmail / Calendar / Tasks
-jarvis digest --fresh          # generate and play your first briefing
+curl http://127.0.0.1:8765/webhooks/trigger \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"Inspect the project and store a progress summary"}'
+# Returns HTTP 202 with an event id.
+curl http://127.0.0.1:8765/webhooks/events/EVENT_ID
 ```
 
-Per-preset deep dives: [morning digest](https://open-jarvis.github.io/OpenJarvis/user-guide/morning-digest/) · [deep research](https://open-jarvis.github.io/OpenJarvis/user-guide/deep-research/) · [code assistant](https://open-jarvis.github.io/OpenJarvis/user-guide/code-assistant/) · [scheduled monitor](https://open-jarvis.github.io/OpenJarvis/user-guide/scheduled-monitor/) · [chat simple](https://open-jarvis.github.io/OpenJarvis/user-guide/chat-simple/) · or the full [quickstart guide](https://open-jarvis.github.io/OpenJarvis/getting-started/quickstart/).
+For explicit depth, include `"high_depth_reasoning": true`. Set
+`VARAK_WEBHOOK_TOKEN` to require `Authorization: Bearer TOKEN`. Browser-origin
+requests are rejected. n8n and other local scripts can call the endpoint directly.
+A hosted Supabase webhook needs a separately configured relay/tunnel to reach a
+loopback-only listener; OpenVarak does not expose the daemon publicly.
 
-### Skills
+Jobs are committed before acknowledgement, bounded in memory, and executed
+serially to avoid competing GPU sessions. Pending/interrupted jobs replay after
+restart with at-least-once semantics: make side effects idempotent. Results and
+failed traces persist locally. `desktop.agent_type` accepts `operative`,
+`monitor_operative`, `native_openhands`, or `rlm`.
 
-Skills teach agents how to better use tools and improve their reasoning. Every skill is a tool — agents discover them from a catalog and invoke them on demand.
+## Persistent memory
+
+The primary memory backend uses Python `sqlite3`, FTS5/BM25, WAL, transactional
+source replacement, checkpoints, and a durable ordered outbox. No native extension
+or FAISS/ColBERT index is required for desktop memory. State defaults to
+`~/.openvarak/memory.db`; `OPENVARAK_HOME` relocates runtime state.
+Existing `~/.openjarvis` state is not automatically moved.
+
+Supabase sync is optional and disabled by default. Apply
+[deploy/supabase/memory.sql](deploy/supabase/memory.sql), set `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY`, pull `nomic-embed-text` into local Ollama, and set
+`[tools.storage] supabase_enabled = true`. The worker embeds with Ollama's
+`/api/embed` and syncs 768-dimensional vectors, documents, traces, and checkpoints.
+Explicit `semantic_retrieve()` uses the SQL cosine-search RPC. Normal `retrieve()`
+always uses local FTS and never waits for Supabase. Failed writes stay queued
+across restarts. This is local-authoritative sync, not a multi-writer merge protocol.
+
+## Persistent browser and live skills
+
+`playwright_session` owns one persistent headless Chromium profile on a dedicated
+thread. Tabs, DOM, cookies, and authentication survive agent turns; the profile
+persists across daemon restarts. Playwright and Chromium are optional until used.
+
+`synthesize_skill` accepts a name, description, Python source defining
+`execute(**params)`, a JSON object parameter schema, test parameters, and an
+optional expected result. It writes a valid Agent Skills `SKILL.md`,
+`scripts/tool.py`, and tool manifest under `~/.openvarak/skills/synthesized/`.
+Validated tools are registered in the current executor and `ToolRegistry` and
+become visible on the next reasoning turn. Saved tools are revalidated on startup.
+
+Docker must be running and the `python:3.12-slim` image must be available
+(`docker pull python:3.12-slim`). Validation and every synthesized invocation run
+in a fresh non-root container with no network, a read-only root filesystem,
+restricted capabilities, resource limits, and a timeout. Generated Python is never
+imported or executed on the daemon host. Skills currently use Python's standard
+library; arbitrary dependency installation is not provided.
+
+After three consecutive tool failures (configurable), the online optimizer uses
+the failed trace to propose a repair. Synthesized code passes both the original
+regression check and the failed invocation before replacing the live tool.
+Built-in tools can receive revised prompt descriptions; their host code is not
+automatically rewritten. Repeated task failures get one bounded optimizer-assisted
+attempt. Policy denials terminate without recovery attempts.
+
+## Verification and optional legacy features
 
 ```bash
-# Install skills from public sources
-jarvis skill install hermes:arxiv
-jarvis skill sync hermes --category research
-
-# Use skills with any agent
-jarvis ask "Use the code-explainer skill to explain this Python code: for i in range(5): print(i*2)"
-
-# Optimize skills from your trace history
-jarvis optimize skills --policy dspy
-
-# Benchmark the impact
-jarvis bench skills --max-samples 5 --seeds 42
-```
-
-Import from [Hermes Agent](https://github.com/NousResearch/hermes-agent) (~150 skills), [OpenClaw](https://github.com/openclaw/skills) (~13,700 community skills), or any GitHub repo. Skills follow the [agentskills.io](https://agentskills.io/specification) open standard.
-
-See the [Skills User Guide](https://open-jarvis.github.io/OpenJarvis/user-guide/skills/) and [Skills Tutorial](https://open-jarvis.github.io/OpenJarvis/tutorials/skills-workflow/) for details.
-
-### Built-in Agents
-
-OpenJarvis ships with eight built-in agents across three execution modes (on-demand, scheduled, continuous):
-
-| Agent | Type | What it does |
-|-------|------|-------------|
-| `morning_digest` | Scheduled | Daily briefing from email, calendar, health, news — with TTS audio |
-| `deep_research` | On-demand | Multi-hop research with citations across web and local docs |
-| `monitor_operative` | Continuous | Long-horizon monitoring with memory, compression, and retrieval |
-| `orchestrator` | On-demand | Multi-turn reasoning with automatic tool selection |
-| `native_react` | On-demand | ReAct (Thought-Action-Observation) loop agent |
-| `operative` | Continuous | Persistent autonomous agent with state management |
-| `native_openhands` | On-demand | CodeAct — generates and executes Python code |
-| `simple` | On-demand | Single-turn chat, no tools |
-
-See the [User Guide](https://open-jarvis.github.io/OpenJarvis/user-guide/morning-digest/) and [Tutorials](https://open-jarvis.github.io/OpenJarvis/tutorials/) for detailed setup instructions.
-
-Full documentation — including Docker deployment, cloud engines, development setup, and tutorials — at **[open-jarvis.github.io/OpenJarvis](https://open-jarvis.github.io/OpenJarvis/)**.
-
-## Community
-
-- **GitHub:** [github.com/open-jarvis/OpenJarvis](https://github.com/open-jarvis/OpenJarvis)
-- **Discord:** [discord.gg/CMVBmDQ5Fj](https://discord.gg/CMVBmDQ5Fj)
-- **X / Twitter:** [@OpenJarvisAI](https://x.com/OpenJarvisAI)
-- **Docs:** [open-jarvis.github.io/OpenJarvis](https://open-jarvis.github.io/OpenJarvis/)
-
-## Contributing
-
-We welcome contributions! See the [Contributing Guide](CONTRIBUTING.md) for incentives, contribution types, and the PR process.
-
-Quick start for contributors:
-
-```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
 uv sync --extra dev
-uv run pre-commit install
-uv run pytest tests/ -v
+uv run pytest tests/desktop -q
+uv run varak --help
+uv run varak check
 ```
 
-Browse the [Roadmap](https://open-jarvis.github.io/OpenJarvis/development/roadmap/) for areas where help is needed. Comment **"take"** on any issue to get auto-assigned.
+The desktop tests cover routing/streaming, preserved tool-call state, SQLite
+restart/offline behavior, outbox replay, webhook dispatch/recovery/backpressure,
+hot skill registration and repair, browser ownership, and container arguments.
+See [docs/openvarak-migration.md](docs/openvarak-migration.md) for compatibility
+and verification limits.
 
-## About
+Legacy research/benchmark modules are retained for reference but excluded from
+the default CLI and dependency path. Install `--extra research` for datasets,
+academic power instrumentation, or PostHog. Other upstream native-backed features
+still require the renamed Rust extension:
 
-OpenJarvis is part of [Intelligence Per Watt](https://www.intelligence-per-watt.ai/), a research initiative studying the intelligence efficiency of AI systems. The project is developed at [Hazy Research](https://hazyresearch.stanford.edu/) and the [Scaling Intelligence Lab](https://scalingintelligence.stanford.edu/) at [Stanford SAIL](https://ai.stanford.edu/).
-
-## Sponsors
-
-<p>
-  <a href="https://www.laude.org/">Laude Institute</a> &bull;
-  <a href="https://datascience.stanford.edu/marlowe">Stanford Marlowe</a> &bull;
-  <a href="https://cloud.google.com/">Google Cloud Platform</a> &bull;
-  <a href="https://lambda.ai/">Lambda Labs</a> &bull;
-  <a href="https://ollama.com/">Ollama</a> &bull;
-  <a href="https://research.ibm.com/">IBM Research</a> &bull;
-  <a href="https://hai.stanford.edu/">Stanford HAI</a>
-</p>
-
-## Citation
-```bibtex
-@misc{saadfalcon2026openjarvispersonalaipersonal,
-      title={OpenJarvis: Personal AI, On Personal Devices}, 
-      author={Jon Saad-Falcon and Avanika Narayan and Robby Manihani and Tanvir Bhathal and Herumb Shandilya and Hakki Orhun Akengin and Gabriel Bo and Andrew Park and Matthew Hart and Caia Costello and Chuan Li and Christopher Ré and Azalia Mirhoseini},
-      year={2026},
-      eprint={2605.17172},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2605.17172}, 
-}
+```bash
+uv run maturin develop -m rust/crates/openvarak-python/Cargo.toml
 ```
-
-## License
-
-[Apache 2.0](LICENSE)

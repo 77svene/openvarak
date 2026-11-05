@@ -1,6 +1,6 @@
 # Simple Chat
 
-A lightweight conversational AI with no tools and no agent overhead. This is the simplest possible OpenJarvis setup: just Ollama and a local model. Ideal for general-purpose chat, Q&A, brainstorming, and getting started quickly.
+A lightweight conversational AI with no tools and no agent overhead. This is the simplest possible OpenVarak setup: just Ollama and a local model. Ideal for general-purpose chat, Q&A, brainstorming, and getting started quickly.
 
 ## Quickstart (3 minutes)
 
@@ -11,11 +11,11 @@ A lightweight conversational AI with no tools and no agent overhead. This is the
 ollama pull qwen3.5:4b
 ```
 
-### 2. Install and initialize OpenJarvis
+### 2. Install and initialize OpenVarak
 
 ```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
+git clone https://github.com/77svene/openvarak.git
+cd OpenVarak
 uv sync
 jarvis init --preset chat-simple --force
 ```
@@ -52,7 +52,7 @@ jarvis ask --json "What is 2+2?"
 
 ## Configuration Reference
 
-The preset writes this to `~/.openjarvis/config.toml`:
+The preset writes this to `~/.openvarak/config.toml`:
 
 ```toml
 [engine]
@@ -80,7 +80,7 @@ port = 8000
 | `qwen3.5:35b` | 35B | Slower | Best | Complex reasoning, detailed analysis |
 | `llama3.1:8b` | 8B | Balanced | Good | Alternative if you prefer Meta models |
 
-To switch models, either edit `~/.openjarvis/config.toml` or override per-query:
+To switch models, either edit `~/.openvarak/config.toml` or override per-query:
 
 ```bash
 jarvis ask -m qwen3.5:35b "Write a detailed comparison of REST and GraphQL"
@@ -113,7 +113,7 @@ The server is OpenAI-compatible, so any client that works with the OpenAI API ca
 ## Using the Desktop App
 
 1. Start the backend: `jarvis serve` (or `./scripts/quickstart.sh`)
-2. Download and open the desktop app from the [releases page](https://github.com/open-jarvis/OpenJarvis/releases)
+2. Download and open the desktop app from the [releases page](https://github.com/77svene/openvarak/releases)
 3. The app connects to `http://localhost:8000` automatically
 
 ## Switching Models
@@ -124,7 +124,7 @@ You can change the default model at any time:
 
 ```bash
 # Open the config file
-${EDITOR:-nano} ~/.openjarvis/config.toml
+${EDITOR:-nano} ~/.openvarak/config.toml
 # Change default_model to your preferred model
 ```
 
@@ -138,7 +138,7 @@ jarvis ask -m deepseek-r1:14b "Hello"
 **Use an environment variable:**
 
 ```bash
-OPENJARVIS_MODEL=qwen3.5:9b jarvis ask "Hello"
+OPENVARAK_MODEL=qwen3.5:9b jarvis ask "Hello"
 ```
 
 ## Troubleshooting

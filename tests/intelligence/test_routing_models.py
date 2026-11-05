@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from openjarvis.intelligence.model_catalog import register_builtin_models
-from openjarvis.learning._stubs import RoutingContext
-from openjarvis.learning.routing.router import (
+from openvarak.intelligence.model_catalog import register_builtin_models
+from openvarak.learning._stubs import RoutingContext
+from openvarak.learning.routing.router import (
     HeuristicRouter,
     build_routing_context,
 )

@@ -3,9 +3,9 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "OpenJarvis"
+name = "openvarak"
 dynamic = ["version"]
-description = "OpenJarvis — modular AI assistant backend with composable intelligence primitives"
+description = "OpenVarak — single-desktop autonomous agent runtime"
 readme = "README.md"
 # Upper bound: numpy 2.2.x (pinned transitively via datasets/pandas) ships no
 # cp314 Windows wheel, so under Python 3.14 uv would compile numpy from source
@@ -30,12 +30,11 @@ classifiers = [
 dependencies = [
     "click>=8",
     "croniter>=2.0",
-    "datasets>=4.5.0",
     "ddgs>=9.11.4",
     "httpx>=0.27",
+    "fastapi>=0.110",
+    "uvicorn>=0.30",
     "openai>=1.30",
-    "nvidia-ml-py>=12.560.30",
-    "posthog>=3.0",
     # Process identity and descendant cleanup for the source-checkout GUI.
     "psutil>=5.9",
     "python-telegram-bot>=22.8",
@@ -46,6 +45,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+research = ["datasets>=4.5.0", "nvidia-ml-py>=12.560.30", "posthog>=3.0"]
 dev = [
     "maturin>=1.12.6",
     "pytest>=8",
@@ -190,7 +190,7 @@ eval-sheets = ["gspread>=6.0", "google-auth>=2.0"]
 mining-pearl-cpu = [
     # Pearl Python packages (py-pearl-mining, miner-base, pearl-gateway) are
     # not on PyPI yet. They are installed at first `mine init` via the
-    # build-from-pin path in src/openjarvis/mining/_install.py:build_from_pin().
+    # build-from-pin path in src/openvarak/mining/_install.py:build_from_pin().
     # When Pearl publishes wheels, replace the line below with version pins.
     #
     # The extra remains as a feature-flag namespace so users can run
@@ -207,14 +207,15 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/open-jarvis/OpenJarvis"
-Documentation = "https://open-jarvis.github.io/OpenJarvis/"
-Repository = "https://github.com/open-jarvis/OpenJarvis"
-Issues = "https://github.com/open-jarvis/OpenJarvis/issues"
+Homepage = "https://github.com/77svene/openvarak"
+Documentation = "https://github.com/77svene/openvarak#readme"
+Repository = "https://github.com/77svene/openvarak"
+Issues = "https://github.com/77svene/openvarak/issues"
 
 [project.scripts]
-jarvis = "openjarvis.cli:main"
-openjarvis-eval = "openjarvis.evals.cli:main"
+varak = "openvarak.desktop_cli:main"
+jarvis = "openvarak.cli:main"
+openvarak-eval = "openvarak.evals.cli:main"
 
 # Version is derived from git tags by hatch-vcs (see #526). For source/editable
 # checkouts this yields the true `git describe` version (e.g. 1.0.3.dev109+g<sha>)
@@ -236,12 +237,12 @@ git_describe_command = [
 ]
 # Builds without a git checkout (e.g. the `COPY src/ src/` Docker stages, which
 # never include .git) can't run `git describe`. Without a fallback that would
-# hard-fail the build. Mirror the runtime sentinel in src/openjarvis/__init__.py.
+# hard-fail the build. Mirror the runtime sentinel in src/openvarak/__init__.py.
 # Such builds can inject the real version via SETUPTOOLS_SCM_PRETEND_VERSION.
 fallback_version = "0.0.0+unknown"
 
 [tool.uv.sources]
-openjarvis-rust = { path = "rust/crates/openjarvis-python" }
+openvarak-rust = { path = "rust/crates/openvarak-python" }
 
 [tool.hatch.build.targets.sdist]
 # Tauri release bundles carry these executables; Python source distributions
@@ -252,19 +253,19 @@ exclude = [
 ]
 # The publishing workflow builds this UI before packaging. Keep its generated
 # files even though the directory is intentionally ignored by Git.
-artifacts = ["/src/openjarvis/server/static/**"]
+artifacts = ["/src/openvarak/server/static/**"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/openjarvis"]
-artifacts = ["/src/openjarvis/server/static/**"]
+packages = ["src/openvarak"]
+artifacts = ["/src/openvarak/server/static/**"]
 exclude = [
-    "/src/openjarvis/agents/claude_code_runner",
+    "/src/openvarak/agents/claude_code_runner",
 ]
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/openjarvis/agents/claude_code_runner/index.mjs" = "_node_modules/claude_code_runner/index.mjs"
-"src/openjarvis/agents/claude_code_runner/package.json" = "_node_modules/claude_code_runner/package.json"
-"src/openjarvis/channels/whatsapp_baileys_bridge" = "_node_modules/whatsapp_baileys_bridge"
+"src/openvarak/agents/claude_code_runner/index.mjs" = "_node_modules/claude_code_runner/index.mjs"
+"src/openvarak/agents/claude_code_runner/package.json" = "_node_modules/claude_code_runner/package.json"
+"src/openvarak/channels/whatsapp_baileys_bridge" = "_node_modules/whatsapp_baileys_bridge"
 "scripts/install" = "_install_scripts"
 "deploy/windows" = "_deploy/windows"
 
@@ -293,27 +294,27 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "W"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/openjarvis/evals/datasets/*.py" = ["E501"]
-"src/openjarvis/evals/scorers/*.py" = ["E501"]
+"src/openvarak/evals/datasets/*.py" = ["E501"]
+"src/openvarak/evals/scorers/*.py" = ["E501"]
 # hybrid/ is research code with long prompt strings and paradigm-specific
 # config dicts — same relaxation as evals research code above. The ``**`` glob
 # also covers subpackages (e.g. hybrid/skillorchestra/), which the prior
 # ``hybrid/*.py`` glob missed.
-"src/openjarvis/agents/hybrid/**/*.py" = ["E501"]
+"src/openvarak/agents/hybrid/**/*.py" = ["E501"]
 # research_loop.py carries long prompt strings too (documented in CLAUDE.md);
 # the ignore was missing here.
-"src/openjarvis/agents/research_loop.py" = ["E501"]
+"src/openvarak/agents/research_loop.py" = ["E501"]
 
 [dependency-groups]
 dev = [
     "maturin>=1.12.6",
 ]
-# openjarvis_rust is the native PyO3 extension, built from the local Rust
+# openvarak_rust is the native PyO3 extension, built from the local Rust
 # workspace. It lives in a uv dependency group (PEP 735) — not the published
 # `desktop` extra — so `uv sync --group desktop-native` builds it from source
-# for the desktop app, while `pip install openjarvis[desktop]` from PyPI does
-# NOT try to resolve openjarvis-rust from PyPI, where it isn't published
+# for the desktop app, while `pip install openvarak[desktop]` from PyPI does
+# NOT try to resolve openvarak-rust from PyPI, where it isn't published
 # (dependency groups are excluded from wheel metadata). See #584 / #615.
 desktop-native = [
-    "openjarvis-rust",
+    "openvarak-rust",
 ]

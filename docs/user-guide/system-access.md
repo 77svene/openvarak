@@ -22,7 +22,7 @@ enabled by default.
 First check whether you have a config file at all:
 
 ```bash
-cat ~/.openjarvis/config.toml
+cat ~/.openvarak/config.toml
 ```
 
 If it isn't there, that's your answer. Create it:
@@ -42,12 +42,12 @@ enabled = ["shell_exec", "file_read", "file_write", "think"]
 ```
 
 There's a fuller version at
-`configs/openjarvis/examples/full-system-access.toml`.
+`configs/openvarak/examples/full-system-access.toml`.
 
 Then confirm the list actually resolved:
 
 ```bash
-python -c "from openjarvis.core.config import load_config; print(load_config().tools.enabled)"
+python -c "from openvarak.core.config import load_config; print(load_config().tools.enabled)"
 ```
 
 ---
@@ -126,11 +126,11 @@ and Calendar all stay locked, and no config key will change that.
 Grant Full Disk Access to whichever process hosts the backend. Child processes
 inherit it:
 
-| How you run OpenJarvis | Grant access to |
+| How you run OpenVarak | Grant access to |
 |------------------------|-----------------|
 | CLI (`jarvis ask`, `jarvis chat`) | Your terminal (Terminal, iTerm, Warp) |
-| Desktop app | `OpenJarvis.app`, which spawns `jarvis serve` beneath it |
-| launchd (`deploy/launchd/com.openjarvis.plist`) | The `jarvis` binary, as its own entry |
+| Desktop app | `OpenVarak.app`, which spawns `jarvis serve` beneath it |
+| launchd (`deploy/launchd/com.openvarak.plist`) | The `jarvis` binary, as its own entry |
 
 System Settings, then Privacy & Security, then Full Disk Access, then **+**.
 
@@ -161,7 +161,7 @@ touch it.
 
 ## What you can't do
 
-There's no computer use. OpenJarvis can't see your screen, move the pointer or
+There's no computer use. OpenVarak can't see your screen, move the pointer or
 send keystrokes. No tool for it is registered and no input automation library
 appears anywhere in the codebase, so granting Accessibility or Screen Recording
 buys you nothing on its own.
@@ -191,7 +191,7 @@ runtime = "docker"
 
 [security.capabilities]
 enabled = true          # RBAC over declared tool capabilities
-policy_path = "~/.openjarvis/policy.yaml"
+policy_path = "~/.openvarak/policy.yaml"
 ```
 
 !!! note "Capabilities are open by default even once enabled"
@@ -209,4 +209,4 @@ For anything untrusted, reach for `docker_shell_exec` and
 - [Security](security.md) for scanners, the audit log and guardrails
 - [Tools](tools.md) for the full registry
 - [Code Assistant](code-assistant.md) for a narrower shell-enabled setup
-- [External MCP Servers](mcp-external-servers.md) for capabilities OpenJarvis doesn't ship
+- [External MCP Servers](mcp-external-servers.md) for capabilities OpenVarak doesn't ship

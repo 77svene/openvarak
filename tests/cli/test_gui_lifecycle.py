@@ -15,7 +15,7 @@ import psutil
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import daemon_cmd, gui_cmd
+from openvarak.cli import daemon_cmd, gui_cmd
 
 
 @pytest.fixture(autouse=True)

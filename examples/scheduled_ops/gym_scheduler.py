@@ -68,7 +68,7 @@ def main(
     )
 
     try:
-        from openjarvis import Jarvis
+        from openvarak import Jarvis
 
         kwargs: dict[str, str | None] = {}
         if model:
@@ -81,7 +81,7 @@ def main(
         click.echo(
             f"Error: Could not initialize Jarvis: {exc}\n\n"
             "Make sure an inference engine is running (e.g. `ollama serve`) "
-            "and the openjarvis package is installed (`uv sync`).",
+            "and the openvarak package is installed (`uv sync`).",
             err=True,
         )
         raise SystemExit(1) from exc
@@ -109,8 +109,8 @@ def main(
 def _register_task(gym: str) -> None:
     """Register this script as a recurring scheduled task."""
     try:
-        from openjarvis.scheduler import TaskScheduler
-        from openjarvis.scheduler.store import SchedulerStore
+        from openvarak.scheduler import TaskScheduler
+        from openvarak.scheduler.store import SchedulerStore
 
         store = SchedulerStore()
         scheduler = TaskScheduler(store)

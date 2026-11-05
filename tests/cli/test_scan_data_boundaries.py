@@ -8,15 +8,15 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from openjarvis.cli.scan_cmd import PrivacyScanner, ScanResult, scan
-from openjarvis.core.config import JarvisConfig
+from openvarak.cli.scan_cmd import PrivacyScanner, ScanResult, scan
+from openvarak.core.config import JarvisConfig
 
 
 def _low_noise_config():
     """Baseline config with no warn/fail findings under an empty scan root.
 
     JarvisConfig defaults include absolute store paths under the real
-    OPENJARVIS_HOME; clear those so tests only see artifacts under tmp_path.
+    OPENVARAK_HOME; clear those so tests only see artifacts under tmp_path.
     """
     config = JarvisConfig()
     config.analytics.enabled = False
@@ -38,7 +38,7 @@ def _low_noise_config():
     config.optimize.judge_model = ""
     config.server.host = "127.0.0.1"
     config.security.profile = "personal"
-    # Avoid scanning the developer's real ~/.openjarvis store files.
+    # Avoid scanning the developer's real ~/.openvarak store files.
     config.traces.db_path = ""
     config.telemetry.db_path = ""
     config.security.audit_log_path = ""
@@ -58,10 +58,10 @@ def _low_noise_config():
 
 def _patch_config(monkeypatch, tmp_path, config, config_loaded=True, error=""):
     monkeypatch.setattr(
-        "openjarvis.cli.scan_cmd._load_data_boundary_config",
+        "openvarak.cli.scan_cmd._load_data_boundary_config",
         lambda: (config, tmp_path, config_loaded, error, ""),
     )
-    monkeypatch.setattr("openjarvis.cli.scan_cmd.get_config_dir", lambda: tmp_path)
+    monkeypatch.setattr("openvarak.cli.scan_cmd.get_config_dir", lambda: tmp_path)
 
 
 def test_scan_data_boundaries_json_redacts_paths(monkeypatch, tmp_path):
@@ -169,7 +169,7 @@ def test_scan_data_boundaries_strict_passes_with_info_only(
     result = CliRunner().invoke(scan, ["--data-boundaries", "--strict"])
 
     assert result.exit_code == 0
-    assert "OpenJarvis Data-Boundary Scan" in result.output
+    assert "OpenVarak Data-Boundary Scan" in result.output
 
 
 def test_scan_data_boundaries_init_defaults_strict_exits_on_warn(
@@ -248,7 +248,7 @@ def test_existing_scan_quick_json_still_works(monkeypatch):
 
 
 def test_top_level_cli_registers_data_boundary_scan(monkeypatch, tmp_path):
-    from openjarvis.cli import cli
+    from openvarak.cli import cli
 
     config = _low_noise_config()
     _patch_config(monkeypatch, tmp_path, config)
@@ -267,8 +267,8 @@ def test_top_level_scan_data_boundaries_does_not_check_for_updates(
 ):
     import sys
 
-    from openjarvis.cli import cli
-    from openjarvis.core.config import JarvisConfig
+    from openvarak.cli import cli
+    from openvarak.core.config import JarvisConfig
 
     called = {"value": False}
 
@@ -276,11 +276,11 @@ def test_top_level_scan_data_boundaries_does_not_check_for_updates(
         called["value"] = True
 
     monkeypatch.setattr(
-        "openjarvis.cli._version_check.check_for_updates",
+        "openvarak.cli._version_check.check_for_updates",
         fake_check_for_updates,
     )
     monkeypatch.setattr(
-        "openjarvis.cli.scan_cmd._load_data_boundary_config",
+        "openvarak.cli.scan_cmd._load_data_boundary_config",
         lambda: (JarvisConfig(), tmp_path, False, "", ""),
     )
     monkeypatch.setattr(
@@ -298,7 +298,7 @@ def test_top_level_scan_data_boundaries_does_not_check_for_updates(
 def test_update_check_skip_helper_is_precise():
     from click import Command, Context
 
-    from openjarvis.cli import _should_skip_update_check
+    from openvarak.cli import _should_skip_update_check
 
     ctx = Context(Command("jarvis"))
     ctx.invoked_subcommand = "scan"
@@ -325,23 +325,23 @@ def test_existing_scan_quick_text_still_works(monkeypatch):
     result = CliRunner().invoke(scan, ["--quick"])
 
     assert result.exit_code == 0
-    assert "OpenJarvis Security Scan" in result.output
+    assert "OpenVarak Security Scan" in result.output
 
 
-def test_data_boundary_loader_honors_openjarvis_config(
+def test_data_boundary_loader_honors_openvarak_config(
     monkeypatch,
     tmp_path,
 ):
-    from openjarvis.cli import scan_cmd
-    from openjarvis.core.config import load_config
+    from openvarak.cli import scan_cmd
+    from openvarak.core.config import load_config
 
     config_path = tmp_path / "custom.toml"
     config_path.write_text(
         "[telemetry]\nenabled = false\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("OPENJARVIS_CONFIG", str(config_path))
-    monkeypatch.setenv("OPENJARVIS_HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("OPENVARAK_CONFIG", str(config_path))
+    monkeypatch.setenv("OPENVARAK_HOME", str(tmp_path / "home"))
     load_config.cache_clear()
 
     _config, _root, loaded, error, root_error = scan_cmd._load_data_boundary_config()
@@ -352,10 +352,10 @@ def test_data_boundary_loader_honors_openjarvis_config(
 
 
 def test_data_boundary_loader_reports_root_error(monkeypatch):
-    from openjarvis.cli import scan_cmd
+    from openvarak.cli import scan_cmd
 
     monkeypatch.setattr(
-        "openjarvis.cli.scan_cmd.get_config_dir",
+        "openvarak.cli.scan_cmd.get_config_dir",
         lambda: (_ for _ in ()).throw(RuntimeError("bad home")),
     )
 
@@ -369,16 +369,16 @@ def test_data_boundary_loader_reports_root_error(monkeypatch):
 
 def test_data_boundary_cli_reports_real_root_error_without_import_crash():
     repo_root = Path(__file__).resolve().parents[2]
-    invalid_home = repo_root / ".invalid-openjarvis-home"
+    invalid_home = repo_root / ".invalid-openvarak-home"
     env = os.environ.copy()
-    env["OPENJARVIS_HOME"] = str(invalid_home)
+    env["OPENVARAK_HOME"] = str(invalid_home)
     env["PYTHONPATH"] = str(repo_root / "src")
 
     result = subprocess.run(
         [
             sys.executable,
             "-c",
-            "from openjarvis.cli import main; main()",
+            "from openvarak.cli import main; main()",
             "scan",
             "--data-boundaries",
             "--json",

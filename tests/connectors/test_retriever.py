@@ -8,9 +8,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openjarvis.connectors.retriever import ColBERTReranker, Reranker, TwoStageRetriever
-from openjarvis.connectors.store import KnowledgeStore
-from openjarvis.tools.storage._stubs import RetrievalResult
+from openvarak.connectors.retriever import ColBERTReranker, Reranker, TwoStageRetriever
+from openvarak.connectors.store import KnowledgeStore
+from openvarak.tools.storage._stubs import RetrievalResult
 
 
 def _has_torch() -> bool:

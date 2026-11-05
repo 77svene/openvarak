@@ -9,7 +9,7 @@ from unittest import mock
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
+from openvarak.cli import cli
 
 
 class TestConfigCmd:

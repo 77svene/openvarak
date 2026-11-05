@@ -1,6 +1,6 @@
 # Telemetry & Traces
 
-OpenJarvis has two complementary observability systems: **telemetry** for per-inference metrics and **traces** for full interaction-level recording. Together, they provide comprehensive insight into system behavior and power the learning system's routing policy updates.
+OpenVarak has two complementary observability systems: **telemetry** for per-inference metrics and **traces** for full interaction-level recording. Together, they provide comprehensive insight into system behavior and power the learning system's routing policy updates.
 
 ---
 
@@ -33,11 +33,11 @@ Each inference call produces a `TelemetryRecord` with the following fields:
 The `TelemetryStore` is an append-only SQLite database that persists telemetry records. It integrates with the event bus to capture records automatically.
 
 ```python
-from openjarvis.telemetry.store import TelemetryStore
-from openjarvis.core.events import EventBus
+from openvarak.telemetry.store import TelemetryStore
+from openvarak.core.events import EventBus
 
 bus = EventBus()
-store = TelemetryStore(db_path="~/.openjarvis/telemetry.db")
+store = TelemetryStore(db_path="~/.openvarak/telemetry.db")
 store.subscribe_to_bus(bus)
 
 # Records are now captured automatically when TELEMETRY_RECORD events fire.
@@ -65,9 +65,9 @@ All CLI commands and SDK methods use this wrapper, so telemetry is recorded tran
 The `TelemetryAggregator` provides read-only query and aggregation methods over stored telemetry data.
 
 ```python
-from openjarvis.telemetry.aggregator import TelemetryAggregator
+from openvarak.telemetry.aggregator import TelemetryAggregator
 
-agg = TelemetryAggregator(db_path="~/.openjarvis/telemetry.db")
+agg = TelemetryAggregator(db_path="~/.openvarak/telemetry.db")
 
 # Overall summary
 summary = agg.summary()
@@ -233,10 +233,10 @@ Each step in a trace records a single action the agent took.
 The `TraceCollector` wraps any `BaseAgent` to automatically record a `Trace` for every `run()` call. It subscribes to event bus events during execution and converts them into `TraceStep` objects.
 
 ```python
-from openjarvis.agents.orchestrator import OrchestratorAgent
-from openjarvis.traces.collector import TraceCollector
-from openjarvis.traces.store import TraceStore
-from openjarvis.core.events import EventBus
+from openvarak.agents.orchestrator import OrchestratorAgent
+from openvarak.traces.collector import TraceCollector
+from openvarak.traces.store import TraceStore
+from openvarak.core.events import EventBus
 
 bus = EventBus()
 store = TraceStore(db_path="./traces.db")
@@ -265,7 +265,7 @@ print(result.content)
 The `TraceStore` is an SQLite-backed database for persisting complete traces with their steps.
 
 ```python
-from openjarvis.traces.store import TraceStore
+from openvarak.traces.store import TraceStore
 
 store = TraceStore(db_path="./traces.db")
 
@@ -309,7 +309,7 @@ store.close()
 The `TraceAnalyzer` provides read-only aggregated statistics over stored traces. These statistics are used by the learning system to update routing policies.
 
 ```python
-from openjarvis.traces.analyzer import TraceAnalyzer
+from openvarak.traces.analyzer import TraceAnalyzer
 
 analyzer = TraceAnalyzer(store=trace_store)
 

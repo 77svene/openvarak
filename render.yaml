@@ -1,9 +1,9 @@
-# Render Blueprint for the OpenJarvis FastAPI server.
-# Deploys src/openjarvis/server/app.py via deploy/docker/Dockerfile.
-# Apply at: https://dashboard.render.com/blueprint/new?repo=https://github.com/open-jarvis/OpenJarvis
+# Render Blueprint for the OpenVarak FastAPI server.
+# Deploys src/openvarak/server/app.py via deploy/docker/Dockerfile.
+# Apply at: https://dashboard.render.com/blueprint/new?repo=https://github.com/77svene/openvarak
 services:
   - type: web
-    name: openjarvis-server
+    name: openvarak-server
     runtime: docker
     plan: free
     region: oregon
@@ -28,9 +28,9 @@ services:
       - key: PORT
         value: "10000"
 
-      # Auth for the OpenJarvis API itself. Required because the server refuses
+      # Auth for the OpenVarak API itself. Required because the server refuses
       # to bind to a non-loopback host without an API key (check_bind_safety).
-      - key: OPENJARVIS_API_KEY
+      - key: OPENVARAK_API_KEY
         generateValue: true
 
       # Required at initial Blueprint creation. Render's `sync: false` fields
@@ -40,8 +40,8 @@ services:
       - key: OPENAI_API_KEY
         sync: false
 
-      # The free service filesystem is ephemeral. OpenJarvis state under this
+      # The free service filesystem is ephemeral. OpenVarak state under this
       # directory is lost on every restart, spin-down, or deploy. See
       # docs/deployment/render.md before storing credentials or durable state.
-      - key: OPENJARVIS_HOME
-        value: /home/openjarvis/.openjarvis
+      - key: OPENVARAK_HOME
+        value: /home/openvarak/.openvarak

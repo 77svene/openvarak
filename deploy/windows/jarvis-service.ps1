@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    Register / unregister the OpenJarvis Windows scheduled task.
+    Register / unregister the OpenVarak Windows scheduled task.
 
 .DESCRIPTION
-    The Windows equivalent of deploy/systemd/openjarvis.service and
-    deploy/launchd/com.openjarvis.plist.
+    The Windows equivalent of deploy/systemd/openvarak.service and
+    deploy/launchd/com.openvarak.plist.
 
-    Registers a per-user scheduled task named "OpenJarvis" that starts
+    Registers a per-user scheduled task named "OpenVarak" that starts
     `jarvis serve` at logon and restarts on failure. Loopback default
     (127.0.0.1) so no API key is required — matches launchd parity.
 
@@ -16,10 +16,10 @@
       status    — show task state
 
     Arguments (install only):
-      -InstallRoot <path>  default: %LOCALAPPDATA%\OpenJarvis (matches
+      -InstallRoot <path>  default: %LOCALAPPDATA%\OpenVarak (matches
                            install.ps1's default)
       -ListenHost <addr>   default: 127.0.0.1 (loopback). Set to 0.0.0.0
-                           ONLY if you also set $env:OPENJARVIS_API_KEY
+                           ONLY if you also set $env:OPENVARAK_API_KEY
                            — the server refuses to start unauthenticated
                            on a non-loopback bind.
       -ListenPort <int>    default: 8000
@@ -42,7 +42,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$TaskName = 'OpenJarvis'
+$TaskName = 'OpenVarak'
 
 function Write-Info  ($msg) { Write-Host "[info]  $msg" -ForegroundColor Cyan }
 function Write-Ok    ($msg) { Write-Host "[ok]    $msg" -ForegroundColor Green }
@@ -57,8 +57,8 @@ function Get-DefaultInstallRoot {
     # function scope (PowerShell's default dynamic lookup would also
     # work today, but $script: is the explicit contract).
     if ($script:InstallRoot) { return $script:InstallRoot }
-    if ($env:OPENJARVIS_HOME) { return $env:OPENJARVIS_HOME }
-    return (Join-Path $env:LOCALAPPDATA 'OpenJarvis')
+    if ($env:OPENVARAK_HOME) { return $env:OPENVARAK_HOME }
+    return (Join-Path $env:LOCALAPPDATA 'OpenVarak')
 }
 
 # ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ function Install-Task {
     $root = Get-DefaultInstallRoot
     $srcDir = Join-Path $root 'src'
     if (-not (Test-Path $srcDir)) {
-        Write-Fail "OpenJarvis source not found at $srcDir. Run install.ps1 first."
+        Write-Fail "OpenVarak source not found at $srcDir. Run install.ps1 first."
     }
 
     $uvCmd = Get-Command uv -ErrorAction SilentlyContinue
@@ -85,15 +85,15 @@ function Install-Task {
     }
 
     # Safety: refuse to register a non-loopback bind without an API key.
-    # Mirrors deploy/systemd/openjarvis.service's EnvironmentFile guard.
+    # Mirrors deploy/systemd/openvarak.service's EnvironmentFile guard.
     $isLoopback = ($ListenHost -eq '127.0.0.1' -or $ListenHost -eq 'localhost')
-    if (-not $isLoopback -and -not $env:OPENJARVIS_API_KEY) {
+    if (-not $isLoopback -and -not $env:OPENVARAK_API_KEY) {
         Write-Fail @"
-ListenHost is $ListenHost (non-loopback) but `$env:OPENJARVIS_API_KEY is
+ListenHost is $ListenHost (non-loopback) but `$env:OPENVARAK_API_KEY is
 not set. An unauthenticated non-loopback bind is refused by jarvis serve
 and would also create a security hole. Set the env var first:
 
-    `$env:OPENJARVIS_API_KEY = (uv run jarvis auth generate-key)
+    `$env:OPENVARAK_API_KEY = (uv run jarvis auth generate-key)
 
 then re-run with -ListenHost 0.0.0.0.
 "@
@@ -107,10 +107,10 @@ then re-run with -ListenHost 0.0.0.0.
     # session picks it up. (Loopback path doesn't need the key, so this
     # only runs for the explicit LAN-exposed case.)
     if (-not $isLoopback) {
-        Write-Info "Persisting OPENJARVIS_API_KEY to User environment so the scheduled task can read it at logon."
+        Write-Info "Persisting OPENVARAK_API_KEY to User environment so the scheduled task can read it at logon."
         [System.Environment]::SetEnvironmentVariable(
-            'OPENJARVIS_API_KEY',
-            $env:OPENJARVIS_API_KEY,
+            'OPENVARAK_API_KEY',
+            $env:OPENVARAK_API_KEY,
             'User'
         )
     }
@@ -153,7 +153,7 @@ then re-run with -ListenHost 0.0.0.0.
         -Trigger $trigger `
         -Settings $settings `
         -Principal $principal `
-        -Description 'OpenJarvis API server (loopback default — see deploy/windows/README.md)' | Out-Null
+        -Description 'OpenVarak API server (loopback default — see deploy/windows/README.md)' | Out-Null
 
     Write-Ok "Task '$TaskName' registered."
     Write-Info "It will start automatically at next logon."

@@ -9,7 +9,7 @@ This tutorial walks through `examples/scheduled_ops/` — three scripts that run
 
 !!! tip "Prerequisites"
     - Python 3.10 or later
-    - OpenJarvis installed: `uv sync --extra dev` from the repository root
+    - OpenVarak installed: `uv sync --extra dev` from the repository root
     - An inference engine running (Ollama with `qwen3:8b` pulled, or a cloud API key)
     - For full cron expression support, install `croniter`: `uv add croniter`
 
@@ -21,7 +21,7 @@ This tutorial walks through `examples/scheduled_ops/` — three scripts that run
 | `code_review.py` | `native_react` | `git_log`, `git_diff`, `file_read`, `think` | Monday 8:00 AM | Review the past week of commits in a repository |
 | `gym_scheduler.py` | `orchestrator` | `web_search`, `think` | MWF 6:00 AM | Check gym hours and class availability |
 
-Each script follows the same SDK pattern: create a `Jarvis` instance, call `j.ask()` with an agent and tools, print the result, and close the instance. The schedule is managed externally by the OpenJarvis scheduler daemon.
+Each script follows the same SDK pattern: create a `Jarvis` instance, call `j.ask()` with an agent and tools, print the result, and close the instance. The schedule is managed externally by the OpenVarak scheduler daemon.
 
 ## Quick Start: Run Scripts Manually
 
@@ -96,7 +96,7 @@ jarvis scheduler list
 ```
 
 !!! note "Cron expression syntax"
-    OpenJarvis uses standard five-field cron syntax: `minute hour day-of-month month day-of-week`. Install `croniter` (`uv add croniter`) for full expression support including ranges and step values. Without it, basic `hour:minute` patterns still work.
+    OpenVarak uses standard five-field cron syntax: `minute hour day-of-month month day-of-week`. Install `croniter` (`uv add croniter`) for full expression support including ranges and step values. Without it, basic `hour:minute` patterns still work.
 
 ## Configure Schedules with TOML
 
@@ -136,8 +136,8 @@ uv run python examples/scheduled_ops/gym_scheduler.py \
 The equivalent Python code:
 
 ```python title="Programmatic task registration"
-from openjarvis.scheduler import TaskScheduler
-from openjarvis.scheduler.store import SchedulerStore
+from openvarak.scheduler import TaskScheduler
+from openvarak.scheduler.store import SchedulerStore
 
 store = SchedulerStore()
 scheduler = TaskScheduler(store)
@@ -160,9 +160,9 @@ print(f"Next run:        {task.next_run}")
 The digest script is the simplest of the three. It builds a date-stamped prompt and passes it to an orchestrator with `web_search` and `think`:
 
 ```python title="examples/scheduled_ops/daily_digest.py" hl_lines="5 6 7 8"
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
-j = Jarvis()  # uses defaults from ~/.openjarvis/config.toml
+j = Jarvis()  # uses defaults from ~/.openvarak/config.toml
 response = j.ask(
     f"Today is {today}. Search and summarize the top news on: {topics}",
     agent="orchestrator",
@@ -185,7 +185,7 @@ uv run python examples/scheduled_ops/daily_digest.py \
 Or add channel output inside the script:
 
 ```python title="In-script channel output"
-from openjarvis.channels import ChannelRegistry
+from openvarak.channels import ChannelRegistry
 
 channel = ChannelRegistry.create("slack", webhook_url="https://hooks.slack.com/...")
 channel.send(response)

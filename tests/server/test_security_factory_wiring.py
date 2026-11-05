@@ -9,11 +9,11 @@ import pytest
 
 pytest.importorskip("fastapi")
 
-from openjarvis.core.config import JarvisConfig
-from openjarvis.core.events import EventBus, EventType
-from openjarvis.security import SecurityContext
-from openjarvis.security.capabilities import CapabilityPolicy
-from openjarvis.server.app import create_app
+from openvarak.core.config import JarvisConfig
+from openvarak.core.events import EventBus, EventType
+from openvarak.security import SecurityContext
+from openvarak.security.capabilities import CapabilityPolicy
+from openvarak.server.app import create_app
 
 
 def _config() -> JarvisConfig:
@@ -49,7 +49,7 @@ def test_factory_derives_missing_security_and_secures_prebuilt_agent(
             audit_logger=audit,
         )
     )
-    monkeypatch.setattr("openjarvis.security.setup_security", setup)
+    monkeypatch.setattr("openvarak.security.setup_security", setup)
     agent = SimpleNamespace(
         agent_id="tool-agent",
         _engine=engine,
@@ -90,7 +90,7 @@ def test_factory_preserves_explicit_security_primitives(monkeypatch) -> None:
             audit_logger=derived_audit,
         )
     )
-    monkeypatch.setattr("openjarvis.security.setup_security", setup)
+    monkeypatch.setattr("openvarak.security.setup_security", setup)
 
     app = create_app(
         "raw",
@@ -108,7 +108,7 @@ def test_factory_preserves_explicit_security_primitives(monkeypatch) -> None:
 
 def test_factory_propagates_strict_security_setup_failure(monkeypatch) -> None:
     monkeypatch.setattr(
-        "openjarvis.security.setup_security",
+        "openvarak.security.setup_security",
         MagicMock(side_effect=RuntimeError("policy failed")),
     )
 
@@ -117,8 +117,8 @@ def test_factory_propagates_strict_security_setup_failure(monkeypatch) -> None:
 
 
 def test_factory_synchronizes_prebuilt_rlm_lazy_executor_runtime(monkeypatch) -> None:
-    from openjarvis.agents.rlm import RLMAgent
-    from openjarvis.agents.rlm_repl import RLMRepl
+    from openvarak.agents.rlm import RLMAgent
+    from openvarak.agents.rlm_repl import RLMRepl
 
     engine = MagicMock()
     engine.generate.side_effect = [
@@ -180,7 +180,7 @@ def test_factory_synchronizes_prebuilt_rlm_lazy_executor_runtime(monkeypatch) ->
 def test_factory_preserves_prebuilt_rlm_policy_and_limiter_while_reidentifying() -> (
     None
 ):
-    from openjarvis.agents.rlm import RLMAgent
+    from openvarak.agents.rlm import RLMAgent
 
     engine = MagicMock()
     agent_policy = CapabilityPolicy(default_deny=True)
@@ -213,9 +213,9 @@ def test_factory_preserves_prebuilt_rlm_policy_and_limiter_while_reidentifying()
 
 
 def test_factory_overrides_prebuilt_executor_identity_at_server_boundary() -> None:
-    from openjarvis.agents.orchestrator import OrchestratorAgent
-    from openjarvis.core.types import ToolCall, ToolResult
-    from openjarvis.tools._stubs import BaseTool, ToolSpec
+    from openvarak.agents.orchestrator import OrchestratorAgent
+    from openvarak.core.types import ToolCall, ToolResult
+    from openvarak.tools._stubs import BaseTool, ToolSpec
 
     class _AdminTool(BaseTool):
         @property

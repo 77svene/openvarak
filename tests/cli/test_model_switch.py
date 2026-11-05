@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from openjarvis.cli._model_switch import (
+from openvarak.cli._model_switch import (
     interactive_pick_model,
     resolve_chat_cli_model,
     tty_wants_model_picker,
     variant_preset_model,
 )
-from openjarvis.core.config import JarvisConfig
+from openvarak.core.config import JarvisConfig
 
 
 def test_variant_preset_long() -> None:
@@ -76,8 +76,8 @@ def test_resolve_returns_empty_when_nothing_found() -> None:
     cfg.intelligence.default_model = ""
     eng = MagicMock()
     with (
-        patch("openjarvis.engine.discover_engines", return_value=[]),
-        patch("openjarvis.engine.discover_models", return_value={}),
+        patch("openvarak.engine.discover_engines", return_value=[]),
+        patch("openvarak.engine.discover_models", return_value={}),
     ):
         m = resolve_chat_cli_model(
             console=MagicMock(),

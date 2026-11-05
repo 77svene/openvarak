@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from openjarvis.core.types import Message, Role
-from openjarvis.engine.cloud import CloudEngine
+from openvarak.core.types import Message, Role
+from openvarak.engine.cloud import CloudEngine
 
 
 class _Stream:

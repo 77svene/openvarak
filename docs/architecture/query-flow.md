@@ -1,6 +1,6 @@
 # Query Flow
 
-This page traces the end-to-end journey of a user query through the OpenJarvis system, from the moment it enters the CLI or SDK to the final response and telemetry recording.
+This page traces the end-to-end journey of a user query through the OpenVarak system, from the moment it enters the CLI or SDK to the final response and telemetry recording.
 
 ---
 
@@ -70,7 +70,7 @@ sequenceDiagram
 
 ## Direct Mode vs Agent Mode
 
-OpenJarvis supports two query processing paths, selected by the `--agent` CLI flag or the `agent` parameter in the SDK.
+OpenVarak supports two query processing paths, selected by the `--agent` CLI flag or the `agent` parameter in the SDK.
 
 The CLI and SDK have different defaults:
 
@@ -92,7 +92,7 @@ j = Jarvis()
 response = j.ask("What is the capital of France?")
 ```
 
-Direct mode bypasses the agent's system prompt and persona handling. In the CLI, set `default_agent = ""` in the `[agent]` section of `~/.openjarvis/config.toml` to make this the default for text queries.
+Direct mode bypasses the agent's system prompt and persona handling. In the CLI, set `default_agent = ""` in the `[agent]` section of `~/.openvarak/config.toml` to make this the default for text queries.
 
 ### Agent Mode
 
@@ -118,7 +118,7 @@ response = j.ask("What is 2^10 + 3^5?", agent="orchestrator", tools=["calculator
 The journey begins with loading the system configuration:
 
 ```python
-config = load_config()  # Reads ~/.openjarvis/config.toml
+config = load_config()  # Reads ~/.openvarak/config.toml
 ```
 
 This step:
@@ -161,8 +161,8 @@ for ek, model_ids in all_models.items():
 If no model was explicitly specified, the router policy selects one:
 
 ```python
-from openjarvis.learning import ensure_registered
-from openjarvis.learning.router import build_routing_context
+from openvarak.learning import ensure_registered
+from openvarak.learning.router import build_routing_context
 ensure_registered()  # Ensure learning policies are registered
 
 policy_key = router_policy or config.learning.routing.policy
@@ -256,7 +256,7 @@ class TelemetryRecord:
     metadata: Dict[str, Any]
 ```
 
-The `TelemetryStore` subscribes to `TELEMETRY_RECORD` events on the EventBus and writes records to `~/.openjarvis/telemetry.db`.
+The `TelemetryStore` subscribes to `TELEMETRY_RECORD` events on the EventBus and writes records to `~/.openvarak/telemetry.db`.
 
 ### Step 9: Trace Recording
 
@@ -302,7 +302,7 @@ TRACE_COMPLETE      {trace: Trace(...)}
 The `Jarvis` class in `sdk.py` provides the same query flow through a Python API:
 
 ```python
-from openjarvis import Jarvis
+from openvarak import Jarvis
 
 j = Jarvis(model="qwen3:8b", engine_key="ollama")
 

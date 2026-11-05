@@ -2,9 +2,9 @@
 
 from unittest.mock import MagicMock
 
-from openjarvis.evals.core.types import EvalRecord
-from openjarvis.evals.datasets.paperarena import PaperArenaDataset
-from openjarvis.evals.scorers.paperarena_judge import PaperArenaScorer
+from openvarak.evals.core.types import EvalRecord
+from openvarak.evals.datasets.paperarena import PaperArenaDataset
+from openvarak.evals.scorers.paperarena_judge import PaperArenaScorer
 
 
 def _mock_backend() -> MagicMock:
@@ -103,18 +103,18 @@ class TestPaperArenaScorer:
 
 class TestPaperArenaCLI:
     def test_in_benchmarks(self) -> None:
-        from openjarvis.evals.cli import BENCHMARKS
+        from openvarak.evals.cli import BENCHMARKS
 
         assert "paperarena" in BENCHMARKS
 
     def test_build_dataset(self) -> None:
-        from openjarvis.evals.cli import _build_dataset
+        from openvarak.evals.cli import _build_dataset
 
         ds = _build_dataset("paperarena")
         assert ds.dataset_id == "paperarena"
 
     def test_build_scorer(self) -> None:
-        from openjarvis.evals.cli import _build_scorer
+        from openvarak.evals.cli import _build_scorer
 
         s = _build_scorer("paperarena", _mock_backend(), "test-model")
         assert s.scorer_id == "paperarena"
