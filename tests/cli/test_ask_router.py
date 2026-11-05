@@ -8,10 +8,10 @@ from unittest import mock
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
-from openjarvis.core.config import JarvisConfig
+from openvarak.cli import cli
+from openvarak.core.config import JarvisConfig
 
-_ask_mod = importlib.import_module("openjarvis.cli.ask")
+_ask_mod = importlib.import_module("openvarak.cli.ask")
 
 
 def _mock_engine():
@@ -36,8 +36,8 @@ def _register_agents():
     so ``jarvis ask "..."`` (without ``--agent``) routes through SimpleAgent.
     Without this re-registration, that path raises ``Unknown agent: simple``.
     """
-    from openjarvis.agents.simple import SimpleAgent
-    from openjarvis.core.registry import AgentRegistry
+    from openvarak.agents.simple import SimpleAgent
+    from openvarak.core.registry import AgentRegistry
 
     if not AgentRegistry.contains("simple"):
         AgentRegistry.register_value("simple", SimpleAgent)
@@ -238,7 +238,7 @@ class TestAskModelResolution:
 
     def test_router_selects_small_model_for_simple_query(self) -> None:
         """When routing is enabled, a low complexity query routes to smallest model."""
-        from openjarvis.intelligence.model_catalog import register_builtin_models
+        from openvarak.intelligence.model_catalog import register_builtin_models
 
         register_builtin_models()
         engine = _mock_engine()

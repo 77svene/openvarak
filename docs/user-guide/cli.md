@@ -1,17 +1,17 @@
 # CLI Reference
 
-OpenJarvis provides a command-line interface through the `jarvis` command. Built on [Click](https://click.palletsprojects.com/), it offers subcommands for querying models, managing memory, running benchmarks, and serving an OpenAI-compatible API.
+OpenVarak provides a command-line interface through the `jarvis` command. Built on [Click](https://click.palletsprojects.com/), it offers subcommands for querying models, managing memory, running benchmarks, and serving an OpenAI-compatible API.
 
 ## Global Options
 
 ```bash
-jarvis --version   # Print the OpenJarvis version
+jarvis --version   # Print the OpenVarak version
 jarvis --help      # Show top-level help with all subcommands
 ```
 
 ## `jarvis init`
 
-Detect local hardware (CPU, GPU, RAM) and generate a configuration file at `~/.openjarvis/config.toml`.
+Detect local hardware (CPU, GPU, RAM) and generate a configuration file at `~/.openvarak/config.toml`.
 
 ```bash
 jarvis init           # Interactive — refuses to overwrite existing config
@@ -91,7 +91,7 @@ jarvis ask --agent simple "Hello"
 jarvis ask --agent "" "Explain quantum computing"
 ```
 
-To make direct mode the default, set `default_agent = ""` in the `[agent]` section of `~/.openjarvis/config.toml`.
+To make direct mode the default, set `default_agent = ""` in the `[agent]` section of `~/.openvarak/config.toml`.
 
 ### Usage Examples
 
@@ -145,7 +145,7 @@ JARVIS_NUM_CTX=8192 jarvis ask --screen "What's on my screen?"
 ```
 
 !!! note "Keep vision on-device"
-    Images are sensitive. OpenJarvis prints a privacy warning before sending
+    Images are sensitive. OpenVarak prints a privacy warning before sending
     an image to a non-local engine, so a screenshot never leaves your machine
     unnoticed. Use a local engine (e.g. `ollama` with `gemma3:4b`) to keep
     vision fully local.
@@ -246,7 +246,7 @@ jarvis model pull qwen3:8b
 
 ## `jarvis pearl`
 
-Access Pearl's native node, wallet, and RPC tools from the OpenJarvis CLI.
+Access Pearl's native node, wallet, and RPC tools from the OpenVarak CLI.
 
 ```bash
 jarvis pearl doctor
@@ -259,7 +259,7 @@ jarvis pearl address
 All Pearl wrapper commands use the `jarvis pearl <command>` shape. The
 pass-through commands map to Pearl's native binaries:
 
-| OpenJarvis command | Pearl binary | Use |
+| OpenVarak command | Pearl binary | Use |
 |--------------------|--------------|-----|
 | `jarvis pearl doctor` | n/a | Check whether `pearld`, `oyster`, and `prlctl` are discoverable |
 | `jarvis pearl node` | `pearld` | Run the Pearl full node |
@@ -513,9 +513,9 @@ When an agent is configured (e.g., `--agent orchestrator`), non-streaming reques
 LLM-guided spec search (the frontier-driven harness-learning subsystem)
 is exposed as a Python library only — there is currently no top-level
 `jarvis` subcommand for it. Construct a `SpecSearchOrchestrator`
-directly from `openjarvis.learning.spec_search.orchestrator` and call
+directly from `openvarak.learning.spec_search.orchestrator` and call
 `.run(trigger)` with a trigger from
-`openjarvis.learning.spec_search.triggers`. See
+`openvarak.learning.spec_search.triggers`. See
 [`docs/user-guide/llm-guided-spec-search.md`](llm-guided-spec-search.md)
 for the architecture and the building blocks
 (`splits.py`, external corpora, `external_adapter`).

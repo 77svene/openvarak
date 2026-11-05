@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from openjarvis.agents.research_loop import DEFAULT_PLANNER_MODEL
-from openjarvis.cli.ask import _resolve_research_model
-from openjarvis.core.config import JarvisConfig
+from openvarak.agents.research_loop import DEFAULT_PLANNER_MODEL
+from openvarak.cli.ask import _resolve_research_model
+from openvarak.core.config import JarvisConfig
 
 
 def test_explicit_model_flag_wins() -> None:

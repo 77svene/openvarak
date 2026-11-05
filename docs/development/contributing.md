@@ -1,7 +1,7 @@
 # Contributing Guide
 
 This guide covers how to set up a development environment, run tests, and
-contribute code to OpenJarvis.
+contribute code to OpenVarak.
 
 ---
 
@@ -18,8 +18,8 @@ contribute code to OpenJarvis.
 ### Clone and Install
 
 ```bash
-git clone https://github.com/open-jarvis/OpenJarvis.git
-cd OpenJarvis
+git clone https://github.com/77svene/openvarak.git
+cd OpenVarak
 uv sync --extra dev
 ```
 
@@ -54,7 +54,7 @@ uv run jarvis --help      # Show all subcommands
 
 ## Running Tests
 
-OpenJarvis uses [pytest](https://docs.pytest.org/) with approximately 1,000+
+OpenVarak uses [pytest](https://docs.pytest.org/) with approximately 1,000+
 tests organized by module.
 
 ### Full Test Suite
@@ -88,7 +88,7 @@ uv run pytest tests/learning/ -v     # All learning tests
 ### Test Coverage
 
 ```bash
-uv run pytest tests/ --cov=openjarvis --cov-report=html
+uv run pytest tests/ --cov=openvarak --cov-report=html
 ```
 
 ### Test Markers
@@ -125,7 +125,7 @@ uv run pytest tests/ -m "not cloud" -v   # Skip cloud tests
 
 ## Linting
 
-OpenJarvis uses [Ruff](https://docs.astral.sh/ruff/) for linting, configured
+OpenVarak uses [Ruff](https://docs.astral.sh/ruff/) for linting, configured
 in `pyproject.toml`:
 
 ```bash
@@ -170,10 +170,10 @@ docstrings with the NumPy docstring style.
 
 ## Project Structure
 
-The source code is organized under `src/openjarvis/`:
+The source code is organized under `src/openvarak/`:
 
 ```
-src/openjarvis/
+src/openvarak/
     __init__.py                 # Package root, __version__
     sdk.py                      # Jarvis class — high-level Python SDK
 
@@ -288,7 +288,7 @@ implementations are added by decorating a class -- no factory modifications
 needed:
 
 ```python
-from openjarvis.core.registry import EngineRegistry
+from openvarak.core.registry import EngineRegistry
 
 @EngineRegistry.register("my_engine")
 class MyEngine(InferenceEngine):
@@ -315,7 +315,7 @@ pattern to fail gracefully when deps are not installed:
 ```python
 # In __init__.py — import to trigger registration
 try:
-    import openjarvis.memory.faiss_backend  # noqa: F401
+    import openvarak.memory.faiss_backend  # noqa: F401
 except ImportError:
     pass
 ```
@@ -359,7 +359,7 @@ class BenchmarkResult:
 
 ### Import Style
 
-- Absolute imports only (`from openjarvis.core.registry import ...`)
+- Absolute imports only (`from openvarak.core.registry import ...`)
 - Sort imports with `ruff` (isort rules enabled)
 - Place `from __future__ import annotations` as the first import
 

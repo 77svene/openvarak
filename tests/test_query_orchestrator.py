@@ -8,11 +8,11 @@ from unittest.mock import patch
 
 import pytest
 
-from openjarvis.agents._stubs import AgentResult
-from openjarvis.core.config import JarvisConfig
-from openjarvis.core.events import EventBus
-from openjarvis.core.types import Message, Role
-from openjarvis.system import QueryOrchestrator
+from openvarak.agents._stubs import AgentResult
+from openvarak.core.config import JarvisConfig
+from openvarak.core.events import EventBus
+from openvarak.core.types import Message, Role
+from openvarak.system import QueryOrchestrator
 
 
 class _FakeEngine:
@@ -124,7 +124,7 @@ class TestDetectAgentIntent:
         ],
     )
     def test_morning_digest_triggers(self, query):
-        from openjarvis.core.registry import AgentRegistry
+        from openvarak.core.registry import AgentRegistry
 
         # Register a stub so the intent check returns the name.
         try:
@@ -163,7 +163,7 @@ class TestRunAgentPersonaWiring:
                 return AgentResult(content="hi", turns=1)
 
         orch = QueryOrchestrator(_FakeSystem())
-        with patch("openjarvis.core.registry.AgentRegistry.get", return_value=_Agent):
+        with patch("openvarak.core.registry.AgentRegistry.get", return_value=_Agent):
             orch._run_agent(
                 "hi",
                 [Message(role=Role.USER, content="hi")],

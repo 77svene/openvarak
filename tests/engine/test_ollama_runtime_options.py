@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from openjarvis.engine.ollama import _ollama_request_options
+from openvarak.engine.ollama import _ollama_request_options
 
 
 def test_with_explicit_runtime_kwargs() -> None:

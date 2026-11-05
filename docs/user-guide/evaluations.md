@@ -1,14 +1,14 @@
 # Evaluations
 
-The OpenJarvis evaluation framework (`openjarvis.evals`) measures model **correctness and accuracy** on academic datasets. It ships inside the main `openjarvis` package (at `src/openjarvis/evals/`) and is designed specifically for research workflows where you need reproducible, dataset-driven quality assessments.
+The OpenVarak evaluation framework (`openvarak.evals`) measures model **correctness and accuracy** on academic datasets. It ships inside the main `openvarak` package (at `src/openvarak/evals/`) and is designed specifically for research workflows where you need reproducible, dataset-driven quality assessments.
 
 !!! info "Evals vs. Benchmarks"
-    OpenJarvis has two distinct measurement systems that complement each other:
+    OpenVarak has two distinct measurement systems that complement each other:
 
     | System | Module | Measures | Entry Point |
     |--------|--------|----------|-------------|
-    | **Evaluations** | `openjarvis.evals` | Correctness on academic datasets (accuracy, pass rate) | `jarvis eval` |
-    | **Benchmarks** | `openjarvis.bench` | Engine performance (latency, throughput) | `jarvis bench` |
+    | **Evaluations** | `openvarak.evals` | Correctness on academic datasets (accuracy, pass rate) | `jarvis eval` |
+    | **Benchmarks** | `openvarak.bench` | Engine performance (latency, throughput) | `jarvis bench` |
 
     Use evaluations to answer "does this model get the right answer?" and benchmarks to answer "how fast does this model respond?". See the [Benchmarks guide](benchmarks.md) for the performance measurement system.
 
@@ -18,13 +18,13 @@ The OpenJarvis evaluation framework (`openjarvis.evals`) measures model **correc
 
 ## Installation
 
-The evaluation framework is part of the main `openjarvis` package — no separate install or extra is required. The standard dev setup is enough:
+The evaluation framework is part of the main `openvarak` package — no separate install or extra is required. The standard dev setup is enough:
 
 ```bash
 uv sync --extra dev
 ```
 
-The framework's core dependencies (`click`, `datasets`, `rich`) are base dependencies of `openjarvis`. Two optional extras enable experiment tracking integrations:
+The framework's core dependencies (`click`, `datasets`, `rich`) are base dependencies of `openvarak`. Two optional extras enable experiment tracking integrations:
 
 ```bash
 uv sync --extra dev --extra eval-wandb     # Weights & Biases run tracking
@@ -38,11 +38,11 @@ package. Install the pinned revision explicitly before running that benchmark:
 uv pip install "tau2 @ git+https://github.com/sierra-research/tau2-bench.git@fc0055dc4e0a316c3f83133267fbd6faaa770992"
 ```
 
-OpenJarvis does not install third-party packages automatically when an
+OpenVarak does not install third-party packages automatically when an
 evaluation is imported or run.
 
 !!! note "Python version requirement"
-    Python 3.10 requires the `tomli` package for TOML config parsing. `openjarvis` declares it as a conditional dependency, so it is installed automatically.
+    Python 3.10 requires the `tomli` package for TOML config parsing. `openvarak` declares it as a conditional dependency, so it is installed automatically.
 
 ## Entry Points
 
@@ -51,19 +51,19 @@ Two equivalent entry points expose the framework:
 | Command | Surface |
 |---------|---------|
 | `jarvis eval {list,run,compare,report}` | Canonical CLI. `run` covers the common options; `compare` and `report` post-process result files. |
-| `python -m openjarvis.evals {list,run,run-all,summarize,reparse-judge}` | Full research surface, including judge configuration, the agentic runner, and episode mode. |
+| `python -m openvarak.evals {list,run,run-all,summarize,reparse-judge}` | Full research surface, including judge configuration, the agentic runner, and episode mode. |
 
-The `openjarvis-eval` console script is an alias for `python -m openjarvis.evals` — same commands, same options. This guide uses `jarvis eval` wherever its option set suffices and the module form for research-only options.
+The `openvarak-eval` console script is an alias for `python -m openvarak.evals` — same commands, same options. This guide uses `jarvis eval` wherever its option set suffices and the module form for research-only options.
 
 ---
 
 ## Datasets
 
-The framework ships with **40 registered benchmarks** covering academic reasoning, agentic tasks, coding, retrieval, conversation quality, and practical use-case benchmarks. Datasets are grouped by category below; `uv run python -m openjarvis.evals list` prints the authoritative registry.
+The framework ships with **40 registered benchmarks** covering academic reasoning, agentic tasks, coding, retrieval, conversation quality, and practical use-case benchmarks. Datasets are grouped by category below; `uv run python -m openvarak.evals list` prints the authoritative registry.
 
 ### Use-Case Benchmarks
 
-These benchmarks evaluate models on practical tasks that mirror real OpenJarvis use cases.
+These benchmarks evaluate models on practical tasks that mirror real OpenVarak use cases.
 
 | Dataset | Key | Description |
 |---------|-----|-------------|
@@ -163,7 +163,7 @@ The framework includes two pre-built configs for evaluating models on the five c
 ### Cloud models
 
 ```bash
-uv run jarvis eval run --config src/openjarvis/evals/configs/use_case_v2_cloud.toml
+uv run jarvis eval run --config src/openvarak/evals/configs/use_case_v2_cloud.toml
 ```
 
 This config evaluates **6 cloud models** (Claude Opus 4.6, Claude Haiku 4.5, Gemini 3.1 Pro, Gemini 3.1 Flash Lite, GPT-5.4, GPT-5 Mini) against all 5 use-case benchmarks with 30 samples each, producing a 6x5 = 30-run matrix. Results are written to `results/use-cases-v2-cloud/`.
@@ -171,7 +171,7 @@ This config evaluates **6 cloud models** (Claude Opus 4.6, Claude Haiku 4.5, Gem
 ### Local models
 
 ```bash
-uv run jarvis eval run --config src/openjarvis/evals/configs/use_case_v2_local.toml
+uv run jarvis eval run --config src/openvarak/evals/configs/use_case_v2_local.toml
 ```
 
 This config evaluates **5 local models** via Ollama (Qwen3.5 122B-A10B, GPT-OSS 120B, GLM4, Qwen3.5 35B-A3B, GLM-4.7-Flash) against the same 5 benchmarks, producing a 5x5 = 25-run matrix. Uses 2 workers (suitable for single-GPU setups). Results are written to `results/use-cases-v2-local/`.
@@ -206,7 +206,7 @@ The `hermes` and `openclaw` backends shell out to external agent frameworks and 
 ### List available benchmarks and backends
 
 ```bash
-uv run python -m openjarvis.evals list
+uv run python -m openvarak.evals list
 ```
 
 Abridged output (40 benchmarks, 4 backends):
@@ -278,7 +278,7 @@ uv run jarvis eval run -b wildchat -m qwen3:8b --temperature 0.7 -n 100
 
 *Required when `--config` is not provided.
 
-#### Research-only options (`python -m openjarvis.evals run`)
+#### Research-only options (`python -m openvarak.evals run`)
 
 The module CLI accepts everything above plus research-grade options that `jarvis eval run` does not expose:
 
@@ -302,10 +302,10 @@ Note: the module CLI's `--backend` choice covers `jarvis-direct`, `jarvis-agent`
 The `run-all` command (module CLI only) evaluates a single model against **every registered benchmark** sequentially and writes results to an output directory:
 
 ```bash
-uv run python -m openjarvis.evals run-all -m qwen3:8b
+uv run python -m openvarak.evals run-all -m qwen3:8b
 
 # With options
-uv run python -m openjarvis.evals run-all -m gpt-5-mini -n 100 --output-dir results/gpt5mini/
+uv run python -m openvarak.evals run-all -m gpt-5-mini -n 100 --output-dir results/gpt5mini/
 ```
 
 Output files are written as `{output_dir}/{benchmark}_{model-slug}.jsonl`. The model slug replaces `/` and `:` with `-`, so `qwen3:8b` becomes `qwen3-8b`.
@@ -315,7 +315,7 @@ Output files are written as `{output_dir}/{benchmark}_{model-slug}.jsonl`. The m
 After a run, inspect a JSONL results file:
 
 ```bash
-uv run python -m openjarvis.evals summarize results/supergpqa_qwen3-8b.jsonl
+uv run python -m openvarak.evals summarize results/supergpqa_qwen3-8b.jsonl
 ```
 
 Output:
@@ -374,7 +374,7 @@ For the external `hermes` and `openclaw` backends these values are **required** 
     The vLLM engine also honors the `VLLM_HOST` environment variable (default `http://localhost:8000`):
 
     ```bash
-    VLLM_HOST=http://gpu-node:8000 uv run python -m openjarvis.evals run \
+    VLLM_HOST=http://gpu-node:8000 uv run python -m openvarak.evals run \
         -b supergpqa -m Qwen/Qwen3-8B -e vllm -n 50
     ```
 
@@ -389,7 +389,7 @@ For research workflows that compare multiple models across multiple benchmarks, 
 ### Running from a config
 
 ```bash
-uv run jarvis eval run --config src/openjarvis/evals/configs/full-suite.toml
+uv run jarvis eval run --config src/openvarak/evals/configs/full-suite.toml
 ```
 
 When `--config` is provided, the `-b`/`--benchmark` and `-m`/`--model` options are not required. All settings come from the config file. The CLI expands the matrix, prints a progress table, and writes results to the configured `output_dir`.
@@ -398,7 +398,7 @@ When `--config` is provided, the `-b`/`--benchmark` and `-m`/`--model` options a
 
 A config file has six sections: `[meta]`, `[defaults]`, `[judge]`, `[run]`, `[[models]]`, and `[[benchmarks]]`. Only `[[models]]` and `[[benchmarks]]` are required — all other sections are optional and fall back to built-in defaults.
 
-```toml title="src/openjarvis/evals/configs/full-suite.toml"
+```toml title="src/openvarak/evals/configs/full-suite.toml"
 # Suite-level metadata (optional)
 [meta]
 name = "full-suite-v1"
@@ -482,7 +482,7 @@ For example, `temperature` is resolved as: use `[defaults].temperature` (0.0), t
 
 A config requires only one `[[models]]` and one `[[benchmarks]]` entry:
 
-```toml title="src/openjarvis/evals/configs/minimal.toml"
+```toml title="src/openvarak/evals/configs/minimal.toml"
 [[models]]
 name = "qwen3:8b"
 
@@ -494,7 +494,7 @@ This runs SuperGPQA against qwen3:8b with all default settings. Use this as a st
 
 ### Single-run config with full options
 
-```toml title="src/openjarvis/evals/configs/single-run.toml"
+```toml title="src/openvarak/evals/configs/single-run.toml"
 [meta]
 name = "single-run-example"
 description = "Evaluate SuperGPQA with a single model and full configuration"
@@ -612,7 +612,7 @@ One block per benchmark. The `name` field is required.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `name` | str | required | Any registered benchmark key (see `uv run python -m openjarvis.evals list`) |
+| `name` | str | required | Any registered benchmark key (see `uv run python -m openvarak.evals list`) |
 | `backend` | str | `"jarvis-direct"` | `jarvis-direct`, `jarvis-agent`, `hermes`, `openclaw`, or `terminalbench-native` |
 | `max_samples` | int | `None` | Limit number of samples; `None` evaluates the full dataset |
 | `split` | str | `None` | Override the default dataset split |
@@ -793,7 +793,7 @@ The `EvalRunner` processes samples concurrently using a `ThreadPoolExecutor`. Re
 
 ```bash
 # Use more workers for faster evaluation (if the engine supports concurrent requests)
-uv run python -m openjarvis.evals run -b supergpqa -m qwen3:8b -w 8 -n 500
+uv run python -m openvarak.evals run -b supergpqa -m qwen3:8b -w 8 -n 500
 ```
 
 !!! warning "Worker count and engine load"
@@ -807,4 +807,4 @@ uv run python -m openjarvis.evals run -b supergpqa -m qwen3:8b -w 8 -n 500
 - [Telemetry & Traces](telemetry.md) — Record and analyze inference metrics from production use
 - [Agents](agents.md) — Configure the `OrchestratorAgent` used by `jarvis-agent` backend
 - [Tools](tools.md) — Available tools for agent-backed evaluations
-- [Python SDK](python-sdk.md) — Programmatic access to OpenJarvis inference and agents
+- [Python SDK](python-sdk.md) — Programmatic access to OpenVarak inference and agents

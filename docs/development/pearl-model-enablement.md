@@ -1,17 +1,17 @@
 # Pearl Model Enablement
 
 This page tracks the work required to make a new Hugging Face model mineable
-through Pearl's vLLM miner and OpenJarvis.
+through Pearl's vLLM miner and OpenVarak.
 
-OpenJarvis can point `vllm-pearl` at a model id, but a raw Hugging Face model is
+OpenVarak can point `vllm-pearl` at a model id, but a raw Hugging Face model is
 not enough. The Pearl vLLM plugin expects a Pearl-compatible quantized model
 whose metadata marks mining layers for 7-bit NoisyGEMM and non-mining layers
 for the vanilla Pearl GEMM path.
 
 ## Supported Models
 
-OpenJarvis only supports Pearl models published by the `pearl-ai` Hugging Face
-organization. Private staging artifacts and OpenJarvis-specific conversion
+OpenVarak only supports Pearl models published by the `pearl-ai` Hugging Face
+organization. Private staging artifacts and OpenVarak-specific conversion
 repos are not user-facing supported mining models.
 
 The current public support set is:
@@ -25,12 +25,12 @@ The current public support set is:
 ## Current Validation Findings
 
 The H100 smoke run validated the default Llama Pearl model end to end through
-`jarvis mine start`, vLLM `/v1/models`, OpenJarvis inference routing, Pearl
+`jarvis mine start`, vLLM `/v1/models`, OpenVarak inference routing, Pearl
 gateway template refresh, and `jarvis mine validate-model`.
 
 `pearl-ai/Gemma-4-31B-it-pearl` and
 `pearl-ai/Llama-3.1-8B-Instruct-pearl` are listed because they are public Pearl
-org artifacts. They remain `planned` in OpenJarvis until we have clean
+org artifacts. They remain `planned` in OpenVarak until we have clean
 H100/H200 validation artifacts for the published repos.
 
 ## Enablement Checklist
@@ -47,9 +47,9 @@ H100/H200 validation artifacts for the published repos.
    - For Gemma4 artifacts, include the base model's processor metadata required
      by vLLM's Gemma4 multimodal profiler.
    - Publish under the planned `pearl-ai/*-pearl` id before enabling it in
-     OpenJarvis.
+     OpenVarak.
 
-   OpenJarvis includes an experimental local converter for this work:
+   OpenVarak includes an experimental local converter for this work:
 
    ```bash
    python scripts/pearl/model_converter.py \
@@ -104,18 +104,18 @@ H100/H200 validation artifacts for the published repos.
    - Gateway reports metrics.
    - `jarvis mine status` parses those metrics.
 
-5. Promote the model in OpenJarvis.
+5. Promote the model in OpenVarak.
    - Change its registry status from `planned` to `validated`.
    - Set measured VRAM and context defaults.
    - Add the model to user docs.
    - Attach validation logs to the PR.
 
-## OpenJarvis Registry
+## OpenVarak Registry
 
 Model support metadata lives in:
 
 ```text
-src/openjarvis/mining/_models.py
+src/openvarak/mining/_models.py
 ```
 
 `jarvis mine models` renders that registry. Planned models are visible to users

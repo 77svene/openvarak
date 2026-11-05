@@ -22,14 +22,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
+from openvarak.cli import cli
 
 pytest.importorskip("fastapi")
 pytest.importorskip("uvicorn")
 
-# ``openjarvis.cli.serve`` as an attribute resolves to the click *command*
+# ``openvarak.cli.serve`` as an attribute resolves to the click *command*
 # (re-exported on the package); grab the real module to monkeypatch its globals.
-serve_mod = importlib.import_module("openjarvis.cli.serve")
+serve_mod = importlib.import_module("openvarak.cli.serve")
 
 
 def _fake_engine() -> MagicMock:
@@ -52,10 +52,10 @@ def _repopulate_registries() -> None:
     import importlib
     import sys
 
-    import openjarvis.agents  # noqa: F401
-    import openjarvis.tools  # noqa: F401
-    import openjarvis.tools.storage  # noqa: F401
-    from openjarvis.core.registry import (
+    import openvarak.agents  # noqa: F401
+    import openvarak.tools  # noqa: F401
+    import openvarak.tools.storage  # noqa: F401
+    from openvarak.core.registry import (
         AgentRegistry,
         MemoryRegistry,
         ToolRegistry,
@@ -63,7 +63,7 @@ def _repopulate_registries() -> None:
 
     if not AgentRegistry.keys():
         for mod_name in list(sys.modules):
-            if mod_name.startswith("openjarvis.agents.") and not mod_name.endswith(
+            if mod_name.startswith("openvarak.agents.") and not mod_name.endswith(
                 "_stubs"
             ):
                 try:
@@ -74,7 +74,7 @@ def _repopulate_registries() -> None:
     if not ToolRegistry.keys():
         for mod_name in list(sys.modules):
             if (
-                mod_name.startswith("openjarvis.tools.")
+                mod_name.startswith("openvarak.tools.")
                 and not mod_name.endswith("_stubs")
                 and not mod_name.endswith("agent_tools")
             ):
@@ -86,7 +86,7 @@ def _repopulate_registries() -> None:
     if not MemoryRegistry.keys():
         for mod_name in list(sys.modules):
             if mod_name.startswith(
-                "openjarvis.tools.storage."
+                "openvarak.tools.storage."
             ) and not mod_name.endswith("_stubs"):
                 try:
                     importlib.reload(sys.modules[mod_name])
@@ -108,8 +108,8 @@ def _run_serve(
     Returns the CliRunner result. The server is never actually started
     (``run_server`` is a no-op) and no real engine is contacted.
     """
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.core.registry import MemoryRegistry
+    from openvarak.core.config import JarvisConfig
+    from openvarak.core.registry import MemoryRegistry
 
     _repopulate_registries()
 
@@ -153,7 +153,7 @@ def _run_serve(
     monkeypatch.setattr(serve_mod, "discover_models", lambda *a, **k: {})
     if channel_backend is not None:
         monkeypatch.setattr(
-            "openjarvis.system.builder.SystemBuilder._resolve_channel",
+            "openvarak.system.builder.SystemBuilder._resolve_channel",
             lambda *args, **kwargs: channel_backend,
         )
 
@@ -164,18 +164,18 @@ def _run_serve(
     if security_primitives is None:
         security_primitives = (None, None, None)
     sec.capability_policy, sec.rate_limiter, sec.audit_logger = security_primitives
-    monkeypatch.setattr("openjarvis.security.setup_security", lambda *a, **k: sec)
+    monkeypatch.setattr("openvarak.security.setup_security", lambda *a, **k: sec)
 
     with (
         patch(
-            "openjarvis.system.builder.SystemBuilder.build",
+            "openvarak.system.builder.SystemBuilder.build",
             build_spy,
         ),
         patch(
-            "openjarvis.agents.executor.AgentExecutor.set_system",
+            "openvarak.agents.executor.AgentExecutor.set_system",
             set_system_spy,
         ),
-        patch("openjarvis.server.daemon.run_server", lambda *a, **k: None),
+        patch("openvarak.server.daemon.run_server", lambda *a, **k: None),
     ):
         return CliRunner().invoke(cli, ["serve"], catch_exceptions=False)
 
@@ -207,12 +207,12 @@ def test_serve_does_not_call_systembuilder_build(tmp_path, monkeypatch):
 def test_serve_passes_environment_cors_origins(tmp_path, monkeypatch):
     """The normal CLI path must not mask the environment override."""
     monkeypatch.setenv(
-        "OPENJARVIS_CORS_ORIGINS",
+        "OPENVARAK_CORS_ORIGINS",
         "https://frontend.example,https://admin.example",
     )
     create_app = MagicMock(return_value=MagicMock())
 
-    with patch("openjarvis.server.app.create_app", create_app):
+    with patch("openvarak.server.app.create_app", create_app):
         result = _run_serve(
             tmp_path,
             monkeypatch,
@@ -277,7 +277,7 @@ def test_executor_receives_required_system_attrs(tmp_path, monkeypatch):
 
 
 def test_channel_system_receives_remote_security_primitives(tmp_path, monkeypatch):
-    from openjarvis.system import JarvisSystem
+    from openvarak.system import JarvisSystem
 
     captured = {}
 

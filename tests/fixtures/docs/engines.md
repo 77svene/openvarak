@@ -1,6 +1,6 @@
 # Inference Engines
 
-OpenJarvis supports several inference backends.
+OpenVarak supports several inference backends.
 
 ## Ollama
 

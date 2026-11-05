@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from openjarvis.cli.serve import serve
+from openvarak.cli.serve import serve
 
 RENDER_BLUEPRINT = Path(__file__).resolve().parents[2] / "render.yaml"
 RENDER_DOC = Path(__file__).resolve().parents[2] / "docs/deployment/render.md"
@@ -82,7 +82,7 @@ def test_render_selects_cloud_engine_through_the_serve_cli(tmp_path: Path) -> No
     assert parsed.params["port"] == 10000
     assert parsed.params["engine_key"] == "cloud"
     assert parsed.params["model_name"] == "gpt-4o-mini"
-    assert "OPENJARVIS_ENGINE" not in _env_vars(service)
+    assert "OPENVARAK_ENGINE" not in _env_vars(service)
     assert _env_vars(service)["PORT"] == {"key": "PORT", "value": "10000"}
 
 
@@ -118,14 +118,14 @@ def test_docker_and_compose_command_overrides_remain_jarvis_subcommands(
 
 
 def test_render_does_not_advertise_an_unconsumed_cors_variable() -> None:
-    assert "OPENJARVIS_CORS_ORIGINS" not in _env_vars(_service())
+    assert "OPENVARAK_CORS_ORIGINS" not in _env_vars(_service())
 
 
 def test_render_public_bind_generates_an_api_key() -> None:
     env = _env_vars(_service())
 
-    assert env["OPENJARVIS_API_KEY"] == {
-        "key": "OPENJARVIS_API_KEY",
+    assert env["OPENVARAK_API_KEY"] == {
+        "key": "OPENVARAK_API_KEY",
         "generateValue": True,
     }
 
@@ -151,7 +151,7 @@ def test_render_free_tier_ephemeral_storage_is_explicitly_documented() -> None:
 
     assert service["plan"] == "free"
     assert "disk" not in service
-    assert env["OPENJARVIS_HOME"]["value"] == "/home/openjarvis/.openjarvis"
+    assert env["OPENVARAK_HOME"]["value"] == "/home/openvarak/.openvarak"
     assert "ephemeral" in docs
     assert "lost" in docs
     assert "persistent disk" in docs

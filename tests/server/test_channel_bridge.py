@@ -9,16 +9,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-pytest.importorskip("fastapi", reason="openjarvis[server] not installed")
+pytest.importorskip("fastapi", reason="openvarak[server] not installed")
 
-from openjarvis.channels._stubs import (
+from openvarak.channels._stubs import (
     BaseChannel,
     ChannelHandler,
     ChannelStatus,
 )
-from openjarvis.core.events import EventBus
-from openjarvis.server.channel_bridge import ChannelBridge
-from openjarvis.server.session_store import SessionStore
+from openvarak.core.events import EventBus
+from openvarak.server.channel_bridge import ChannelBridge
+from openvarak.server.session_store import SessionStore
 
 
 class FakeChannel(BaseChannel):

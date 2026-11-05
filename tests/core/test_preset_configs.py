@@ -1,7 +1,7 @@
 """Smoke test: every shipped preset config must load cleanly.
 
 Presets are installed via `jarvis init --preset <name>`, which copies
-`configs/openjarvis/examples/<name>.toml` to `~/.openjarvis/config.toml`.
+`configs/openvarak/examples/<name>.toml` to `~/.openvarak/config.toml`.
 A preset that fails to parse via `load_config()` would break first-time
 setup, so we validate the whole set on every commit.
 """
@@ -12,11 +12,9 @@ from pathlib import Path
 
 import pytest
 
-from openjarvis.core.config import JarvisConfig, load_config
+from openvarak.core.config import JarvisConfig, load_config
 
-PRESETS_DIR = (
-    Path(__file__).resolve().parents[2] / "configs" / "openjarvis" / "examples"
-)
+PRESETS_DIR = Path(__file__).resolve().parents[2] / "configs" / "openvarak" / "examples"
 
 
 def _preset_paths() -> list[Path]:

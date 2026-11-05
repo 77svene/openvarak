@@ -14,17 +14,17 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
-from openjarvis.core.config import JarvisConfig
-from openjarvis.core.events import EventBus, EventType
-from openjarvis.core.types import Message, Role, TelemetryRecord
-from openjarvis.telemetry.aggregator import AggregatedStats, TelemetryAggregator
-from openjarvis.telemetry.energy_monitor import BASIS_GPU, EnergySample
-from openjarvis.telemetry.instrumented_engine import InstrumentedEngine
-from openjarvis.telemetry.store import TelemetryStore
+from openvarak.cli import cli
+from openvarak.core.config import JarvisConfig
+from openvarak.core.events import EventBus, EventType
+from openvarak.core.types import Message, Role, TelemetryRecord
+from openvarak.telemetry.aggregator import AggregatedStats, TelemetryAggregator
+from openvarak.telemetry.energy_monitor import BASIS_GPU, EnergySample
+from openvarak.telemetry.instrumented_engine import InstrumentedEngine
+from openvarak.telemetry.store import TelemetryStore
 
-_ask_mod = importlib.import_module("openjarvis.cli.ask")
-_bench_mod = importlib.import_module("openjarvis.cli.bench_cmd")
+_ask_mod = importlib.import_module("openvarak.cli.ask")
+_bench_mod = importlib.import_module("openvarak.cli.bench_cmd")
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ class TestCliAskWiring:
         )
         mock_monitor = _mock_energy_monitor()
         with patch(
-            "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+            "openvarak.telemetry.energy_monitor.create_energy_monitor",
             return_value=mock_monitor,
         ):
             result = CliRunner().invoke(cli, ["ask", "Hello"])
@@ -259,7 +259,7 @@ class TestCliAskWiring:
         )
         mock_monitor = _mock_energy_monitor()
         with patch(
-            "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+            "openvarak.telemetry.energy_monitor.create_energy_monitor",
             return_value=mock_monitor,
         ):
             CliRunner().invoke(cli, ["ask", "Hello"])
@@ -290,8 +290,8 @@ class TestCliAskWiring:
         )
 
         # Register a trivial agent that calls engine.generate
-        from openjarvis.agents._stubs import AgentResult
-        from openjarvis.core.registry import AgentRegistry
+        from openvarak.agents._stubs import AgentResult
+        from openvarak.core.registry import AgentRegistry
 
         class _TestAgent:
             agent_id = "test-wiring-agent"
@@ -336,12 +336,12 @@ class TestSdkWiring:
 
     def test_engine_wrapped_in_ensure_engine(self):
         """_ensure_engine wraps with InstrumentedEngine."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = JarvisConfig()
         with patch(
-            "openjarvis.sdk.get_engine",
+            "openvarak.sdk.get_engine",
             return_value=("mock", engine),
         ):
             j = Jarvis(config=cfg, model="test-model")
@@ -351,7 +351,7 @@ class TestSdkWiring:
 
     def test_energy_monitor_stored(self, tmp_path):
         """Energy monitor is created and stored on Jarvis instance."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = _energy_config(tmp_path, gpu_metrics=True)
@@ -359,11 +359,11 @@ class TestSdkWiring:
 
         with (
             patch(
-                "openjarvis.sdk.get_engine",
+                "openvarak.sdk.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+                "openvarak.telemetry.energy_monitor.create_energy_monitor",
                 return_value=mock_monitor,
             ),
         ):
@@ -375,14 +375,14 @@ class TestSdkWiring:
 
     def test_no_energy_monitor_when_gpu_metrics_off(self):
         """No energy monitor when gpu_metrics=False."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = JarvisConfig()
         cfg.telemetry.gpu_metrics = False
 
         with patch(
-            "openjarvis.sdk.get_engine",
+            "openvarak.sdk.get_engine",
             return_value=("mock", engine),
         ):
             j = Jarvis(config=cfg, model="test-model")
@@ -392,7 +392,7 @@ class TestSdkWiring:
 
     def test_ask_full_records_energy(self, tmp_path):
         """ask_full records energy via InstrumentedEngine."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = _energy_config(tmp_path, gpu_metrics=True)
@@ -400,11 +400,11 @@ class TestSdkWiring:
 
         with (
             patch(
-                "openjarvis.sdk.get_engine",
+                "openvarak.sdk.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+                "openvarak.telemetry.energy_monitor.create_energy_monitor",
                 return_value=mock_monitor,
             ),
         ):
@@ -423,7 +423,7 @@ class TestSdkWiring:
 
     def test_close_cleans_up_energy_monitor(self):
         """close() releases the energy monitor."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = JarvisConfig()
@@ -432,11 +432,11 @@ class TestSdkWiring:
 
         with (
             patch(
-                "openjarvis.sdk.get_engine",
+                "openvarak.sdk.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+                "openvarak.telemetry.energy_monitor.create_energy_monitor",
                 return_value=mock_monitor,
             ),
         ):
@@ -448,7 +448,7 @@ class TestSdkWiring:
 
     def test_double_close_safe(self):
         """Double close doesn't crash."""
-        from openjarvis.sdk import Jarvis
+        from openvarak.sdk import Jarvis
 
         engine = _mock_engine()
         cfg = JarvisConfig()
@@ -457,11 +457,11 @@ class TestSdkWiring:
 
         with (
             patch(
-                "openjarvis.sdk.get_engine",
+                "openvarak.sdk.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+                "openvarak.telemetry.energy_monitor.create_energy_monitor",
                 return_value=mock_monitor,
             ),
         ):
@@ -601,15 +601,15 @@ class TestBenchWiring:
 
         with (
             patch(
-                "openjarvis.cli.bench_cmd.get_engine",
+                "openvarak.cli.bench_cmd.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.cli.bench_cmd.load_config",
+                "openvarak.cli.bench_cmd.load_config",
                 return_value=cfg,
             ),
             patch(
-                "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+                "openvarak.telemetry.energy_monitor.create_energy_monitor",
                 return_value=mock_monitor,
             ) as mock_create,
         ):
@@ -641,11 +641,11 @@ class TestBenchWiring:
 
         with (
             patch(
-                "openjarvis.cli.bench_cmd.get_engine",
+                "openvarak.cli.bench_cmd.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.cli.bench_cmd.load_config",
+                "openvarak.cli.bench_cmd.load_config",
                 return_value=cfg,
             ),
         ):
@@ -675,11 +675,11 @@ class TestBenchWiring:
 
         with (
             patch(
-                "openjarvis.cli.bench_cmd.get_engine",
+                "openvarak.cli.bench_cmd.get_engine",
                 return_value=("mock", engine),
             ),
             patch(
-                "openjarvis.cli.bench_cmd.load_config",
+                "openvarak.cli.bench_cmd.load_config",
                 return_value=cfg,
             ),
         ):
@@ -719,7 +719,7 @@ def _patch_telemetry_config(tmp_path: Path):
     cfg = mock.MagicMock()
     cfg.telemetry.db_path = str(db_path)
     return mock.patch(
-        "openjarvis.cli.telemetry_cmd.load_config",
+        "openvarak.cli.telemetry_cmd.load_config",
         return_value=cfg,
     ), db_path
 
@@ -968,7 +968,7 @@ class TestEndToEndPipeline:
 
         mock_monitor = _mock_energy_monitor()
         with patch(
-            "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+            "openvarak.telemetry.energy_monitor.create_energy_monitor",
             return_value=mock_monitor,
         ):
             CliRunner().invoke(cli, ["ask", "Hello"])
@@ -977,7 +977,7 @@ class TestEndToEndPipeline:
         telem_cfg = mock.MagicMock()
         telem_cfg.telemetry.db_path = cfg.telemetry.db_path
         with mock.patch(
-            "openjarvis.cli.telemetry_cmd.load_config",
+            "openvarak.cli.telemetry_cmd.load_config",
             return_value=telem_cfg,
         ):
             result = CliRunner().invoke(
@@ -1017,7 +1017,7 @@ class TestEndToEndPipeline:
 
         mock_monitor = _mock_energy_monitor()
         with patch(
-            "openjarvis.telemetry.energy_monitor.create_energy_monitor",
+            "openvarak.telemetry.energy_monitor.create_energy_monitor",
             return_value=mock_monitor,
         ):
             CliRunner().invoke(cli, ["ask", "Hello"])
@@ -1026,7 +1026,7 @@ class TestEndToEndPipeline:
         telem_cfg = mock.MagicMock()
         telem_cfg.telemetry.db_path = cfg.telemetry.db_path
         with mock.patch(
-            "openjarvis.cli.telemetry_cmd.load_config",
+            "openvarak.cli.telemetry_cmd.load_config",
             return_value=telem_cfg,
         ):
             result = CliRunner().invoke(

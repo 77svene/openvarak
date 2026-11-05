@@ -114,7 +114,7 @@ struct BootPlan {
     model_to_pull: Option<String>,
     /// Optional `(engine_key, bare_host)` override for a custom endpoint,
     /// e.g. `("lmstudio", "http://localhost:1234")`. Written into
-    /// ~/.openjarvis/config.toml so `jarvis serve` picks it up.
+    /// ~/.openvarak/config.toml so `jarvis serve` picks it up.
     engine_host: Option<(String, String)>,
     /// Args appended after `uv run jarvis serve --port <port>`.
     serve_args: Vec<String>,
@@ -284,12 +284,12 @@ fn resolve_bin(name: &str) -> String {
     name.to_string()
 }
 
-/// Find the OpenJarvis project root (contains pyproject.toml).
-/// Checks OPENJARVIS_ROOT env var, the checkout beside the executable,
+/// Find the OpenVarak project root (contains pyproject.toml).
+/// Checks OPENVARAK_ROOT env var, the checkout beside the executable,
 /// then walks up from the executable before probing common clone locations.
 fn find_project_root() -> Option<std::path::PathBuf> {
     // 1. Explicit env var override
-    if let Ok(root) = std::env::var("OPENJARVIS_ROOT") {
+    if let Ok(root) = std::env::var("OPENVARAK_ROOT") {
         let path = std::path::PathBuf::from(&root);
         if path.join("pyproject.toml").exists() {
             return Some(path);
@@ -307,18 +307,18 @@ fn find_project_root() -> Option<std::path::PathBuf> {
     // 3. Fallback: well-known direct paths
     let home = home_dir();
     let direct = [
-        format!("{home}/OpenJarvis"),
-        format!("{home}/projects/hazy/OpenJarvis"),
-        format!("{home}/projects/OpenJarvis"),
-        format!("{home}/src/OpenJarvis"),
-        format!("{home}/Documents/OpenJarvis"),
-        format!("{home}/Desktop/OpenJarvis"),
-        format!("{home}/Developer/OpenJarvis"),
-        format!("{home}/dev/OpenJarvis"),
-        format!("{home}/Code/OpenJarvis"),
-        format!("{home}/code/OpenJarvis"),
-        format!("{home}/repos/OpenJarvis"),
-        format!("{home}/github/OpenJarvis"),
+        format!("{home}/OpenVarak"),
+        format!("{home}/projects/hazy/OpenVarak"),
+        format!("{home}/projects/OpenVarak"),
+        format!("{home}/src/OpenVarak"),
+        format!("{home}/Documents/OpenVarak"),
+        format!("{home}/Desktop/OpenVarak"),
+        format!("{home}/Developer/OpenVarak"),
+        format!("{home}/dev/OpenVarak"),
+        format!("{home}/Code/OpenVarak"),
+        format!("{home}/code/OpenVarak"),
+        format!("{home}/repos/OpenVarak"),
+        format!("{home}/github/OpenVarak"),
     ];
     for p in &direct {
         let path = std::path::PathBuf::from(p);
@@ -327,8 +327,8 @@ fn find_project_root() -> Option<std::path::PathBuf> {
         }
     }
 
-    // 4. Shallow scan: look for OpenJarvis one level inside common parent dirs.
-    //    This catches clones like ~/Documents/my-stuff/OpenJarvis without
+    // 4. Shallow scan: look for OpenVarak one level inside common parent dirs.
+    //    This catches clones like ~/Documents/my-stuff/OpenVarak without
     //    needing to enumerate every possible intermediate folder.
     let scan_parents = [
         format!("{home}/Documents"),
@@ -346,13 +346,13 @@ fn find_project_root() -> Option<std::path::PathBuf> {
         let parent_path = std::path::PathBuf::from(parent);
         if let Ok(entries) = std::fs::read_dir(&parent_path) {
             for entry in entries.flatten() {
-                let candidate = entry.path().join("OpenJarvis");
+                let candidate = entry.path().join("OpenVarak");
                 if candidate.join("pyproject.toml").exists() {
                     return Some(candidate);
                 }
-                // Also check if the entry itself is OpenJarvis (case-insensitive match)
+                // Also check if the entry itself is OpenVarak (case-insensitive match)
                 if let Some(name) = entry.file_name().to_str() {
-                    if name.eq_ignore_ascii_case("openjarvis")
+                    if name.eq_ignore_ascii_case("openvarak")
                         && entry.path().join("pyproject.toml").exists()
                     {
                         return Some(entry.path());
@@ -372,8 +372,8 @@ fn project_root_near_executable(exe: &std::path::Path) -> Option<std::path::Path
         return Some(exe_dir.to_path_buf());
     }
 
-    // The Windows installer places the desktop executable in OpenJarvis/ and
-    // clones the matching Python backend into OpenJarvis/src/.
+    // The Windows installer places the desktop executable in OpenVarak/ and
+    // clones the matching Python backend into OpenVarak/src/.
     let installed_checkout = exe_dir.join("src");
     if installed_checkout.join("pyproject.toml").is_file() {
         return Some(installed_checkout);
@@ -504,7 +504,7 @@ impl Default for SetupStatus {
     fn default() -> Self {
         Self {
             phase: "awaiting_source".into(),
-            detail: "Choose where OpenJarvis should run models.".into(),
+            detail: "Choose where OpenVarak should run models.".into(),
             ollama_ready: false,
             server_ready: false,
             model_ready: false,
@@ -858,7 +858,7 @@ fn format_uv_sync_failure(root: &std::path::Path, exit_code: Option<i32>, stderr
 
 /// Strip AppImage-injected environment from a subprocess command (#455).
 ///
-/// When the OpenJarvis desktop binary is shipped as an AppImage, the AppImage
+/// When the OpenVarak desktop binary is shipped as an AppImage, the AppImage
 /// runtime sets `LD_LIBRARY_PATH` (and friends) to the extracted-to-/tmp
 /// bundled lib dir. Any child we spawn inherits that env by default — but the
 /// children we spawn (`uv`, `ollama`, `git`) live outside the AppImage and
@@ -894,7 +894,7 @@ fn prepare_subprocess_for_appimage(cmd: &mut tokio::process::Command) {
 fn format_uv_sync_spawn_error(root: &std::path::Path, uv_bin: &str, err: &str) -> String {
     format!(
         "Could not run `uv sync`: {}. Verify uv is installed at \
-         `{}` and the OpenJarvis repo is at `{}`.",
+         `{}` and the OpenVarak repo is at `{}`.",
         err,
         uv_bin,
         root.display(),
@@ -907,7 +907,7 @@ fn rust_toolchain_install_hint() -> &'static str {
             for its x64 Python backend. Install Rust from https://rustup.rs, run \
             `rustup target add --toolchain stable x86_64-pc-windows-msvc`, then relaunch.";
     #[cfg(not(all(target_os = "windows", target_arch = "aarch64")))]
-    "The desktop app needs the Rust toolchain to build `openjarvis_rust`. \
+    "The desktop app needs the Rust toolchain to build `openvarak_rust`. \
      Install Rust from https://rustup.rs. On Windows, also install Visual Studio \
      Build Tools with the C++ workload, then relaunch."
 }
@@ -937,8 +937,8 @@ fn prepare_backend_python(cmd: &mut tokio::process::Command) {
 fn looks_like_rust_extension_build_error(stderr: &str) -> bool {
     let lower = stderr.to_ascii_lowercase();
     [
-        "openjarvis-rust",
-        "openjarvis_rust",
+        "openvarak-rust",
+        "openvarak_rust",
         "maturin",
         "cargo",
         "rustc",
@@ -961,11 +961,11 @@ fn format_missing_rust_toolchain() -> String {
 fn format_extension_import_failure(root: &std::path::Path, stderr: &str) -> String {
     let tail = uv_sync_stderr_tail(stderr, 4000);
     format!(
-        "`openjarvis_rust` is still not importable after building. Last output:\n\n{}\n\n\
+        "`openvarak_rust` is still not importable after building. Last output:\n\n{}\n\n\
          Run these manually for the full build log:\n\n\
            cd {}\n\
            {}\n\
-           uv run python -c \"import openjarvis_rust\"",
+           uv run python -c \"import openvarak_rust\"",
         if tail.is_empty() {
             "(no stderr output)"
         } else {
@@ -991,12 +991,12 @@ fn add_cargo_bin_to_path(cmd: &mut tokio::process::Command) {
     }
 }
 
-async fn verify_openjarvis_rust_extension(
+async fn verify_openvarak_rust_extension(
     root: &std::path::Path,
     uv_bin: &str,
 ) -> Result<(), String> {
     let mut cmd = tokio::process::Command::new(uv_bin);
-    cmd.args(["run", "python", "-c", "import openjarvis_rust"])
+    cmd.args(["run", "python", "-c", "import openvarak_rust"])
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::piped())
         .current_dir(root);
@@ -1012,7 +1012,7 @@ async fn verify_openjarvis_rust_extension(
             Err(format_extension_import_failure(root, &stderr))
         }
         Err(e) => Err(format!(
-            "Could not verify `openjarvis_rust`: {}. Verify uv is installed at `{}`.",
+            "Could not verify `openvarak_rust`: {}. Verify uv is installed at `{}`.",
             e, uv_bin
         )),
     }
@@ -1029,7 +1029,7 @@ fn port_owner_hint() -> String {
 fn format_port_unavailable(port: u16, reason: &str) -> String {
     format!(
         "Port {} is not available: {}. Stop the process using that port or \
-         change the OpenJarvis port, then relaunch.\n\nTo identify it:\n  {}",
+         change the OpenVarak port, then relaunch.\n\nTo identify it:\n  {}",
         port,
         reason,
         port_owner_hint(),
@@ -1223,7 +1223,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             return;
         }
         // Point `jarvis serve` at the user's endpoint by writing the engine
-        // host into ~/.openjarvis/config.toml (the env var alone is shadowed by
+        // host into ~/.openvarak/config.toml (the env var alone is shadowed by
         // the engine's non-empty default host in the Python layer).
         if let Some((engine, host)) = &plan.engine_host {
             if let Err(e) = set_engine_host_in_config(engine, host) {
@@ -1296,15 +1296,15 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             return;
         }
 
-        let target_path = std::path::PathBuf::from(home_dir()).join("OpenJarvis");
+        let target_path = std::path::PathBuf::from(home_dir()).join("OpenVarak");
         let clone_target = target_path.display().to_string();
 
         // If the directory exists but is not a valid project, don't overwrite
         if target_path.exists() && !target_path.join("pyproject.toml").exists() {
             let mut s = status.lock().await;
             s.error = Some(format!(
-                "{} exists but is not a valid OpenJarvis project. \
-                 Remove it and relaunch, or set OPENJARVIS_ROOT to the correct path.",
+                "{} exists but is not a valid OpenVarak project. \
+                 Remove it and relaunch, or set OPENVARAK_ROOT to the correct path.",
                 clone_target,
             ));
             return;
@@ -1312,7 +1312,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
 
         {
             let mut s = status.lock().await;
-            s.detail = "Downloading OpenJarvis (first launch)...".into();
+            s.detail = "Downloading OpenVarak (first launch)...".into();
         }
 
         let mut clone_cmd = tokio::process::Command::new(&git_bin);
@@ -1321,7 +1321,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 "clone",
                 "--depth",
                 "1",
-                "https://github.com/open-jarvis/OpenJarvis.git",
+                "https://github.com/77svene/openvarak.git",
                 &clone_target,
             ])
             .stdout(std::process::Stdio::null())
@@ -1338,8 +1338,8 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                     let stderr = String::from_utf8_lossy(&output.stderr);
                     let mut s = status.lock().await;
                     s.error = Some(format!(
-                        "Failed to download OpenJarvis: {}. \
-                         Clone manually: git clone https://github.com/open-jarvis/OpenJarvis.git {}",
+                        "Failed to download OpenVarak: {}. \
+                         Clone manually: git clone https://github.com/77svene/openvarak.git {}",
                         stderr.trim(),
                         clone_target,
                     ));
@@ -1348,8 +1348,8 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 Err(e) => {
                     let mut s = status.lock().await;
                     s.error = Some(format!(
-                        "Failed to download OpenJarvis: {}. \
-                         Clone manually: git clone https://github.com/open-jarvis/OpenJarvis.git {}",
+                        "Failed to download OpenVarak: {}. \
+                         Clone manually: git clone https://github.com/77svene/openvarak.git {}",
                         e, clone_target,
                     ));
                     return;
@@ -1426,7 +1426,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                         Ok(true) => {
                             let mut s = status.lock().await;
                             s.error = Some(format!(
-                                "An API server is already running on port {}, but OpenJarvis cannot securely apply your new inference API key to a server it did not start. Stop that server, then try setup again.",
+                                "An API server is already running on port {}, but OpenVarak cannot securely apply your new inference API key to a server it did not start. Stop that server, then try setup again.",
                                 JARVIS_PORT,
                             ));
                             return;
@@ -1479,7 +1479,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 s.error = Some(format!(
                     "Port {} is already in use by another service (it answered \
                      /health with HTTP {}). Stop that service or change the \
-                     OpenJarvis port, then relaunch.\n\nTo identify it:\n  {}",
+                     OpenVarak port, then relaunch.\n\nTo identify it:\n  {}",
                     JARVIS_PORT,
                     resp.status(),
                     port_owner_hint(),
@@ -1535,7 +1535,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             "inference-cloud",
             "--extra",
             "inference-google",
-            // openjarvis_rust lives in a uv dependency group (not the published
+            // openvarak_rust lives in a uv dependency group (not the published
             // `desktop` extra) so pip installs from PyPI don't require it (#584).
             "--group",
             "desktop-native",
@@ -1566,9 +1566,9 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
 
     {
         let mut s = status.lock().await;
-        s.detail = "Verifying Rust extension (openjarvis_rust)...".into();
+        s.detail = "Verifying Rust extension (openvarak_rust)...".into();
     }
-    if let Err(err) = verify_openjarvis_rust_extension(root, &uv_bin).await {
+    if let Err(err) = verify_openvarak_rust_extension(root, &uv_bin).await {
         let mut s = status.lock().await;
         s.error = Some(err);
         return;
@@ -1636,7 +1636,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
             let mut s = status.lock().await;
             s.error = Some(format!(
                 "Could not start jarvis server: {}. \
-                 Make sure uv is installed (https://astral.sh/uv) and the OpenJarvis repo is cloned at {}",
+                 Make sure uv is installed (https://astral.sh/uv) and the OpenVarak repo is cloned at {}",
                 e,
                 root.display(),
             ));
@@ -1681,7 +1681,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                     "Jarvis server exited (code {}) before becoming ready.\n\n\
                      No stderr output. Check that:\n\
                      1. uv is installed ({})\n\
-                     2. The OpenJarvis repo is at {}\n\
+                     2. The OpenVarak repo is at {}\n\
                      3. 'uv sync' completes in that directory",
                     code_str,
                     uv_bin,
@@ -1702,7 +1702,7 @@ async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
                 format!(
                     "Jarvis server did not become ready within 10 minutes. Check that:\n\
                      1. uv is installed ({})\n\
-                     2. The OpenJarvis repo is at {}\n\
+                     2. The OpenVarak repo is at {}\n\
                      3. Run 'uv sync' in that directory",
                     uv_bin,
                     root.display(),
@@ -1765,7 +1765,7 @@ async fn start_backend(
 ) -> Result<(), String> {
     if read_configured_inference_config().is_none() {
         *status.lock().await = SetupStatus::default();
-        return Err("Choose an inference source before starting OpenJarvis.".into());
+        return Err("Choose an inference source before starting OpenVarak.".into());
     }
     let b = backend.inner().clone();
     let s = status.inner().clone();
@@ -1977,7 +1977,7 @@ async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
 
     let mut cmd = tokio::process::Command::new(&uv_bin);
     cmd.args(&cmd_args);
-    // Run from the project root so `uv run jarvis` resolves the OpenJarvis
+    // Run from the project root so `uv run jarvis` resolves the OpenVarak
     // project regardless of the app's launch cwd. In a packaged install the
     // cwd isn't the checkout, so without this `jarvis` isn't found and the
     // backend never starts — the UI then shows "Failed to get response"
@@ -2150,11 +2150,11 @@ async fn submit_savings(
 // Cloud API key management
 // ---------------------------------------------------------------------------
 
-const SECURE_KEY_SERVICE: &str = "OpenJarvis Cloud Keys";
+const SECURE_KEY_SERVICE: &str = "OpenVarak Cloud Keys";
 // A first-run custom credential is kept in its own secure-storage slot until
 // the managed backend has passed every readiness gate.  In particular, do not
 // overwrite an existing <ENGINE>_API_KEY while setup can still be cancelled.
-const PENDING_INFERENCE_API_KEY: &str = "OPENJARVIS_PENDING_INFERENCE_API_KEY";
+const PENDING_INFERENCE_API_KEY: &str = "OPENVARAK_PENDING_INFERENCE_API_KEY";
 const MANAGED_CLOUD_KEY_NAMES: &[&str] = &[
     "OPENAI_API_KEY",
     "ANTHROPIC_API_KEY",
@@ -2170,7 +2170,7 @@ const MANAGED_CLOUD_KEY_NAMES: &[&str] = &[
 fn legacy_cloud_keys_path() -> std::path::PathBuf {
     let home = home_dir();
     std::path::PathBuf::from(home)
-        .join(".openjarvis")
+        .join(".openvarak")
         .join("cloud-keys.env")
 }
 
@@ -2527,7 +2527,7 @@ async fn delete_ollama_model(model_name: String) -> Result<serde_json::Value, St
 }
 
 // ---------------------------------------------------------------------------
-// Inference-source selection (~/.openjarvis/inference.json)
+// Inference-source selection (~/.openvarak/inference.json)
 // ---------------------------------------------------------------------------
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -2565,10 +2565,10 @@ fn legacy_config_is_confirmed() -> bool {
     true
 }
 
-/// Path to the inference-source config (~/.openjarvis/inference.json).
+/// Path to the inference-source config (~/.openvarak/inference.json).
 fn inference_config_path() -> std::path::PathBuf {
     std::path::PathBuf::from(home_dir())
-        .join(".openjarvis")
+        .join(".openvarak")
         .join("inference.json")
 }
 
@@ -2891,13 +2891,13 @@ fn upsert_engine_host(existing: &str, engine: &str, host: &str) -> Result<String
     Ok(doc.to_string())
 }
 
-/// Write the custom-endpoint host into ~/.openjarvis/config.toml so
+/// Write the custom-endpoint host into ~/.openvarak/config.toml so
 /// `jarvis serve` (which reads that file via load_config) points at it.
 /// The `<ENGINE>_HOST` env var is unreliable — it is shadowed by the engine's
 /// non-empty default host in the Python layer — so config.toml is the override.
 fn set_engine_host_in_config(engine: &str, host: &str) -> Result<(), String> {
     let path = std::path::PathBuf::from(home_dir())
-        .join(".openjarvis")
+        .join(".openvarak")
         .join("config.toml");
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
@@ -2986,7 +2986,7 @@ mod native_overlay {
 
     fn conversation_path() -> std::path::PathBuf {
         std::path::PathBuf::from(super::home_dir())
-            .join(".openjarvis")
+            .join(".openvarak")
             .join("overlay-conversation.json")
     }
 
@@ -3379,7 +3379,7 @@ pub fn run() {
             let health = MenuItemBuilder::with_id("health", "Health: starting...")
                 .enabled(false)
                 .build(app)?;
-            let quit = MenuItemBuilder::with_id("quit", "Quit OpenJarvis").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "Quit OpenVarak").build(app)?;
 
             let menu = MenuBuilder::new(app)
                 .item(&show)
@@ -3391,7 +3391,7 @@ pub fn run() {
 
             let _tray = TrayIconBuilder::with_id("main")
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("OpenJarvis")
+                .tooltip("OpenVarak")
                 .menu(&menu)
                 .on_menu_event(move |app, event| match event.id().as_ref() {
                     "show" => {
@@ -3477,7 +3477,7 @@ pub fn run() {
             get_overlay_conversation,
         ])
         .build(tauri::generate_context!())
-        .expect("error while building OpenJarvis Desktop")
+        .expect("error while building OpenVarak Desktop")
         .run(move |_app, event| {
             if let tauri::RunEvent::ExitRequested { .. } = event {
                 let b = backend.clone();
@@ -3556,7 +3556,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         std::env::temp_dir().join(format!(
-            "openjarvis-{}-{}-{}",
+            "openvarak-{}-{}-{}",
             label,
             std::process::id(),
             nonce
@@ -3566,15 +3566,15 @@ mod tests {
     #[test]
     fn project_root_installed_desktop_finds_checkout_beside_executable() {
         let root = unique_test_root("installed-desktop-root");
-        let install_dir = root.join("localappdata").join("OpenJarvis");
+        let install_dir = root.join("localappdata").join("OpenVarak");
         let bundled_checkout = install_dir.join("src");
-        let unrelated_clone = root.join("home").join("OpenJarvis");
+        let unrelated_clone = root.join("home").join("OpenVarak");
         std::fs::create_dir_all(&bundled_checkout).unwrap();
         std::fs::create_dir_all(&unrelated_clone).unwrap();
         std::fs::write(bundled_checkout.join("pyproject.toml"), "[project]\n").unwrap();
         std::fs::write(unrelated_clone.join("pyproject.toml"), "[project]\n").unwrap();
 
-        let exe = install_dir.join("openjarvis-desktop.exe");
+        let exe = install_dir.join("openvarak-desktop.exe");
         assert_eq!(project_root_near_executable(&exe), Some(bundled_checkout));
 
         std::fs::remove_dir_all(root).unwrap();
@@ -3587,7 +3587,7 @@ mod tests {
         std::fs::create_dir_all(&exe_dir).unwrap();
         std::fs::write(root.join("pyproject.toml"), "[project]\n").unwrap();
 
-        let exe = exe_dir.join("openjarvis-desktop");
+        let exe = exe_dir.join("openvarak-desktop");
         assert_eq!(project_root_near_executable(&exe), Some(root.clone()));
 
         std::fs::remove_dir_all(root).unwrap();
@@ -3626,12 +3626,12 @@ mod tests {
     #[test]
     fn failure_message_includes_exit_code_and_tail_and_hint() {
         let msg = format_uv_sync_failure(
-            Path::new("/home/u/.openjarvis/src"),
+            Path::new("/home/u/.openvarak/src"),
             Some(2),
             "error: failed to resolve numpy==2.1.3",
         );
         assert!(msg.contains("exit 2"));
-        assert!(msg.contains("/home/u/.openjarvis/src"));
+        assert!(msg.contains("/home/u/.openvarak/src"));
         assert!(msg.contains("failed to resolve numpy==2.1.3"));
         assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND)); // actionable next step
     }
@@ -3661,16 +3661,16 @@ mod tests {
         let msg = format_missing_rust_toolchain();
         assert!(msg.contains("cargo"));
         assert!(msg.contains("https://rustup.rs"));
-        assert!(msg.contains("openjarvis_rust"));
+        assert!(msg.contains("openvarak_rust"));
         assert!(msg.contains("Visual Studio Build Tools"));
     }
 
     #[test]
     fn uv_sync_rust_failure_mentions_toolchain() {
         let msg = format_uv_sync_failure(
-            Path::new("C:\\Users\\me\\OpenJarvis"),
+            Path::new("C:\\Users\\me\\OpenVarak"),
             Some(1),
-            "maturin failed: linker `link.exe` not found while building openjarvis-rust",
+            "maturin failed: linker `link.exe` not found while building openvarak-rust",
         );
         assert!(msg.contains("exit 1"));
         assert!(msg.contains("link.exe"));
@@ -3681,12 +3681,12 @@ mod tests {
     #[test]
     fn extension_import_failure_names_verification_command() {
         let msg = format_extension_import_failure(
-            Path::new("C:\\Users\\me\\OpenJarvis"),
-            "ModuleNotFoundError: No module named 'openjarvis_rust'",
+            Path::new("C:\\Users\\me\\OpenVarak"),
+            "ModuleNotFoundError: No module named 'openvarak_rust'",
         );
-        assert!(msg.contains("openjarvis_rust"));
+        assert!(msg.contains("openvarak_rust"));
         assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND));
-        assert!(msg.contains("uv run python -c \"import openjarvis_rust\""));
+        assert!(msg.contains("uv run python -c \"import openvarak_rust\""));
         assert!(msg.contains("ModuleNotFoundError"));
     }
 
@@ -3978,7 +3978,7 @@ mod tests {
     #[test]
     fn pending_config_rolls_back_unless_boot_confirms_it() {
         let root = std::env::temp_dir().join(format!(
-            "openjarvis-pending-inference-{}",
+            "openvarak-pending-inference-{}",
             std::process::id()
         ));
         std::fs::create_dir_all(&root).unwrap();
@@ -4278,10 +4278,10 @@ mod tests {
 
     #[test]
     fn owned_child_process_helper() {
-        let Some(started) = std::env::var_os("OPENJARVIS_OWNED_CHILD_STARTED") else {
+        let Some(started) = std::env::var_os("OPENVARAK_OWNED_CHILD_STARTED") else {
             return;
         };
-        let completed = std::env::var_os("OPENJARVIS_OWNED_CHILD_COMPLETED").unwrap();
+        let completed = std::env::var_os("OPENVARAK_OWNED_CHILD_COMPLETED").unwrap();
         std::fs::write(started, "started").unwrap();
         std::thread::sleep(std::time::Duration::from_millis(500));
         std::fs::write(completed, "completed").unwrap();
@@ -4294,7 +4294,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         let root = std::env::temp_dir().join(format!(
-            "openjarvis-owned-child-{}-{unique}",
+            "openvarak-owned-child-{}-{unique}",
             std::process::id()
         ));
         std::fs::create_dir_all(&root).unwrap();
@@ -4311,8 +4311,8 @@ mod tests {
                 "tests::owned_child_process_helper",
                 "--nocapture",
             ])
-            .env("OPENJARVIS_OWNED_CHILD_STARTED", started_for_child)
-            .env("OPENJARVIS_OWNED_CHILD_COMPLETED", completed_for_child)
+            .env("OPENVARAK_OWNED_CHILD_STARTED", started_for_child)
+            .env("OPENVARAK_OWNED_CHILD_COMPLETED", completed_for_child)
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null());
             let child = spawn_owned_child(&mut cmd).unwrap();

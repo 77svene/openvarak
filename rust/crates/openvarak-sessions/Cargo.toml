@@ -1,0 +1,11 @@
+[package]
+name = "openvarak-sessions"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+openvarak-core = { path = "../openvarak-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rusqlite = { workspace = true }
+uuid = { workspace = true }

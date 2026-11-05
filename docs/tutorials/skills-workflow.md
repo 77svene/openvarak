@@ -8,11 +8,11 @@ description: End-to-end tutorial — install skills, use them with an agent, dis
 This tutorial walks through the complete skills lifecycle: installing skills from public sources, using them with a local agent, discovering patterns from trace history, and optimizing skill descriptions with DSPy. By the end you will have a working skills setup that improves over time.
 
 !!! note "Before you begin"
-    This tutorial assumes OpenJarvis is installed with Ollama running and a model available (e.g., `qwen3.5:9b`). If you have not completed setup yet, start with the [Quick Start guide](../getting-started/quickstart.md).
+    This tutorial assumes OpenVarak is installed with Ollama running and a model available (e.g., `qwen3.5:9b`). If you have not completed setup yet, start with the [Quick Start guide](../getting-started/quickstart.md).
 
 ## Step 1: Install Skills from Hermes Agent
 
-OpenJarvis can import skills from the [Hermes Agent](https://github.com/NousResearch/hermes-agent) skill library maintained by NousResearch. Let's install a few useful ones.
+OpenVarak can import skills from the [Hermes Agent](https://github.com/NousResearch/hermes-agent) skill library maintained by NousResearch. Let's install a few useful ones.
 
 ```bash
 # Install individual skills
@@ -23,7 +23,7 @@ jarvis skill install hermes:arxiv
 jarvis skill sync hermes --category research
 ```
 
-The first install clones the Hermes repo to `~/.openjarvis/skill-cache/hermes/` (one-time, ~5s). Subsequent installs reuse the cache.
+The first install clones the Hermes repo to `~/.openvarak/skill-cache/hermes/` (one-time, ~5s). Subsequent installs reuse the cache.
 
 Verify what's installed:
 
@@ -46,13 +46,13 @@ This shows the skill's metadata — author, description, tags, capabilities, whe
 You can also inspect the raw SKILL.md:
 
 ```bash
-cat ~/.openjarvis/skills/hermes/llm-wiki/SKILL.md | head -40
+cat ~/.openvarak/skills/hermes/llm-wiki/SKILL.md | head -40
 ```
 
 The `.source` file records provenance:
 
 ```bash
-cat ~/.openjarvis/skills/hermes/llm-wiki/.source
+cat ~/.openvarak/skills/hermes/llm-wiki/.source
 ```
 
 This shows the source (`hermes:llm-wiki`), the git commit it was imported from, which tool names were translated (e.g., `Edit→file_edit`), and the install timestamp.
@@ -86,19 +86,19 @@ The `simple` agent intentionally cannot call tools. Use `orchestrator` or anothe
 Create a new skill directory:
 
 ```bash
-mkdir -p ~/.openjarvis/skills/my-reviewer
+mkdir -p ~/.openvarak/skills/my-reviewer
 ```
 
 Write a SKILL.md:
 
 ```bash
-cat > ~/.openjarvis/skills/my-reviewer/SKILL.md << 'EOF'
+cat > ~/.openvarak/skills/my-reviewer/SKILL.md << 'EOF'
 ---
 name: my-reviewer
 description: Review code changes with a security-first approach
 license: MIT
 metadata:
-  openjarvis:
+  openvarak:
     version: "0.1.0"
     author: me
     tags: [coding, review, security]
@@ -147,7 +147,7 @@ jarvis ask --agent orchestrator "Use llm-wiki to describe a dataset entry"
 jarvis ask --agent orchestrator "Use my-reviewer to review: def square(x): return x*x"
 ```
 
-Each query produces one trace in `~/.openjarvis/traces.db`. An invoked skill's tool-call step includes the `skill`, `skill_source`, and `skill_kind` metadata tags.
+Each query produces one trace in `~/.openvarak/traces.db`. An invoked skill's tool-call step includes the `skill`, `skill_source`, and `skill_kind` metadata tags.
 
 ## Step 6: Discover Patterns from Traces
 
@@ -161,7 +161,7 @@ jarvis skill discover --dry-run --min-frequency 2 --min-outcome 0
 jarvis skill discover --min-frequency 2 --min-outcome 0
 ```
 
-Discovered skills land in `~/.openjarvis/skills/discovered/` and automatically appear in `jarvis skill list` on the next session.
+Discovered skills land in `~/.openvarak/skills/discovered/` and automatically appear in `jarvis skill list` on the next session.
 
 Discovery requires recurring sequences of at least two tool calls. `--min-outcome 0` includes new traces that have not yet been scored.
 
@@ -177,7 +177,7 @@ jarvis optimize skills --dry-run --min-traces 3
 jarvis optimize skills --policy dspy --min-traces 3
 ```
 
-This produces overlay files at `~/.openjarvis/learning/skills/<skill-name>/optimized.toml` with improved descriptions and few-shot examples extracted from your best traces.
+This produces overlay files at `~/.openvarak/learning/skills/<skill-name>/optimized.toml` with improved descriptions and few-shot examples extracted from your best traces.
 
 Inspect what was produced:
 
@@ -201,7 +201,7 @@ This runs the PinchBench benchmark in four conditions (no skills, skills on, DSP
 
 ## Step 9: Configure Auto-Import and Auto-Optimization
 
-For a hands-off experience, add this to `~/.openjarvis/config.toml`:
+For a hands-off experience, add this to `~/.openvarak/config.toml`:
 
 ```toml
 [skills]

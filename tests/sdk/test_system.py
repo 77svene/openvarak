@@ -7,9 +7,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openjarvis.core.config import JarvisConfig
-from openjarvis.core.events import EventBus
-from openjarvis.system import JarvisSystem, SystemBuilder
+from openvarak.core.config import JarvisConfig
+from openvarak.core.events import EventBus
+from openvarak.system import JarvisSystem, SystemBuilder
 
 
 class TestJarvisSystem:
@@ -52,9 +52,9 @@ class TestJarvisSystem:
         assert system.rate_limiter is None
 
     def test_system_orchestrator_wires_direct_agent_security(self):
-        from openjarvis.agents._stubs import AgentContext, AgentResult, BaseAgent
-        from openjarvis.core.registry import AgentRegistry
-        from openjarvis.security.capabilities import CapabilityPolicy
+        from openvarak.agents._stubs import AgentContext, AgentResult, BaseAgent
+        from openvarak.core.registry import AgentRegistry
+        from openvarak.security.capabilities import CapabilityPolicy
 
         class _Limiter:
             def __init__(self):
@@ -166,8 +166,8 @@ class TestJarvisSystem:
 
     def test_ask_with_agent_override(self):
         """Passing agent= param should use that agent even if system has a default."""
-        from openjarvis.agents._stubs import AgentResult
-        from openjarvis.core.registry import AgentRegistry
+        from openvarak.agents._stubs import AgentResult
+        from openvarak.core.registry import AgentRegistry
 
         class TestAgent:
             agent_id = "test-system-agent"
@@ -361,7 +361,7 @@ class TestSystemBuilder:
         assert builder._traces is False
 
     def test_import_works(self):
-        from openjarvis.system import JarvisSystem, SystemBuilder
+        from openvarak.system import JarvisSystem, SystemBuilder
 
         assert JarvisSystem is not None
         assert SystemBuilder is not None
@@ -449,7 +449,7 @@ class TestSystemBuilderEngineInstance:
         config = JarvisConfig()
         engine = self._fake_engine(healthy=False)
         builder = SystemBuilder(config).engine_instance(engine)
-        with patch("openjarvis.engine._discovery.get_engine") as mock_get_engine:
+        with patch("openvarak.engine._discovery.get_engine") as mock_get_engine:
             with pytest.raises(RuntimeError, match="Refusing to fall back"):
                 builder._resolve_engine(config)
         mock_get_engine.assert_not_called()
@@ -458,7 +458,7 @@ class TestSystemBuilderEngineInstance:
         config = JarvisConfig()
         engine = self._fake_engine(healthy=True)
         builder = SystemBuilder(config).engine_instance(engine, key="endpoint")
-        with patch("openjarvis.engine._discovery.get_engine") as mock_get_engine:
+        with patch("openvarak.engine._discovery.get_engine") as mock_get_engine:
             resolved_engine, _ = builder._resolve_engine(config)
         assert resolved_engine is engine
         mock_get_engine.assert_not_called()

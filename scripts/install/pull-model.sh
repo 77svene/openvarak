@@ -3,7 +3,7 @@
 #
 # Usage: pull-model.sh <model-id>
 #
-# State files written under $OPENJARVIS_HOME/.state/models/:
+# State files written under $OPENVARAK_HOME/.state/models/:
 #   <model>.downloading  — created on start
 #   <model>.ready        — on success (atomic rename)
 #   <model>.failed       — on failure after retries
@@ -17,8 +17,8 @@ if [[ -z "$MODEL" ]]; then
     exit 2
 fi
 
-OPENJARVIS_HOME="${OPENJARVIS_HOME:-$HOME/.openjarvis}"
-STATE_DIR="$OPENJARVIS_HOME/.state/models"
+OPENVARAK_HOME="${OPENVARAK_HOME:-$HOME/.openvarak}"
+STATE_DIR="$OPENVARAK_HOME/.state/models"
 mkdir -p "$STATE_DIR"
 
 DOWNLOADING="$STATE_DIR/${MODEL}.downloading"

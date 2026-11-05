@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import daemon_cmd
+from openvarak.cli import daemon_cmd
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def linux_process(tmp_path, monkeypatch):
     process = {
         "boot_id": "70ec59ac-d41e-48ea-81a4-673a7d1f996b",
         "starts": {4321: 10000, 9876: 20000},
-        "argv": ["/usr/bin/python3", "-m", "openjarvis.cli", "serve"],
+        "argv": ["/usr/bin/python3", "-m", "openvarak.cli", "serve"],
         "readable": True,
     }
     read_text = Path.read_text
@@ -111,9 +111,9 @@ def test_reboot_rejects_even_an_identical_pid_and_start_tick(linux_process):
         ["/venv/bin/python3", "-u", "/venv/bin/jarvis", "serve"],
         ["/venv/bin/python3", "-uO", "-Wignore", "-Xdev", "/venv/bin/jarvis", "serve"],
         ["/venv/bin/python3", "--", "/venv/bin/jarvis", "serve"],
-        ["/venv/bin/python3", "-u", "-m", "openjarvis.cli", "serve"],
-        ["/venv/bin/python3", "-mopenjarvis.cli", "serve"],
-        ["/venv/bin/python3", "-W", "", "-m", "openjarvis.cli", "serve"],
+        ["/venv/bin/python3", "-u", "-m", "openvarak.cli", "serve"],
+        ["/venv/bin/python3", "-mopenvarak.cli", "serve"],
+        ["/venv/bin/python3", "-W", "", "-m", "openvarak.cli", "serve"],
         [
             "/venv/bin/python3",
             "-W",
@@ -121,7 +121,7 @@ def test_reboot_rejects_even_an_identical_pid_and_start_tick(linux_process):
             "-X",
             "dev",
             "-m",
-            "openjarvis.cli",
+            "openvarak.cli",
             "serve",
         ],
     ],
@@ -141,24 +141,24 @@ def test_live_legacy_daemon_is_migrated_without_wall_clock(linux_process, argv):
     "argv",
     [
         ["/usr/bin/python3", "-c", "import time; time.sleep(30)"],
-        ["/usr/bin/python3", "/tmp/worker.py", "-m", "openjarvis.cli", "serve"],
-        ["/usr/bin/python3", "-u", "/tmp/worker.py", "-m", "openjarvis.cli", "serve"],
-        ["/usr/bin/python3", "-c", "pass", "-m", "openjarvis.cli", "serve"],
-        ["/usr/bin/python3", "--", "-m", "openjarvis.cli", "serve"],
-        ["/usr/bin/python3", "-W", "-m", "openjarvis.cli", "serve"],
+        ["/usr/bin/python3", "/tmp/worker.py", "-m", "openvarak.cli", "serve"],
+        ["/usr/bin/python3", "-u", "/tmp/worker.py", "-m", "openvarak.cli", "serve"],
+        ["/usr/bin/python3", "-c", "pass", "-m", "openvarak.cli", "serve"],
+        ["/usr/bin/python3", "--", "-m", "openvarak.cli", "serve"],
+        ["/usr/bin/python3", "-W", "-m", "openvarak.cli", "serve"],
         [
             "/usr/bin/python3",
             "-W",
             "",
             "/tmp/worker.py",
             "-m",
-            "openjarvis.cli",
+            "openvarak.cli",
             "serve",
         ],
-        ["/usr/bin/not-python", "-m", "openjarvis.cli", "serve"],
+        ["/usr/bin/not-python", "-m", "openvarak.cli", "serve"],
         ["/venv/bin/jarvis", "ask", "serve"],
         ["/venv/bin/jarvis", "--help", "serve"],
-        ["/usr/bin/python3", "-m", "other", "-m", "openjarvis.cli", "serve"],
+        ["/usr/bin/python3", "-m", "other", "-m", "openvarak.cli", "serve"],
     ],
 )
 def test_legacy_unrelated_process_is_not_adopted_or_signaled(

@@ -9,10 +9,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openjarvis.channels._stubs import ChannelMessage, ChannelStatus
-from openjarvis.channels.whatsapp_baileys import WhatsAppBaileysChannel
-from openjarvis.core.events import EventBus, EventType
-from openjarvis.core.registry import ChannelRegistry
+from openvarak.channels._stubs import ChannelMessage, ChannelStatus
+from openvarak.channels.whatsapp_baileys import WhatsAppBaileysChannel
+from openvarak.core.events import EventBus, EventType
+from openvarak.core.registry import ChannelRegistry
 
 
 @pytest.fixture(autouse=True)

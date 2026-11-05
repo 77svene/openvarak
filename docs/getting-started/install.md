@@ -8,7 +8,7 @@
 | **Linux** | `curl -fsSL https://open-jarvis.github.io/OpenJarvis/install.sh \| bash` | [Linux install](linux.md) |
 | **WSL2 on Windows** | `curl -fsSL https://open-jarvis.github.io/OpenJarvis/install.sh \| bash` (run inside Ubuntu) | [WSL2 install](wsl2.md) |
 | **Native Windows** | `irm https://open-jarvis.github.io/OpenJarvis/install.ps1 \| iex` | [Native Windows install](windows-native.md) |
-| **Desktop GUI** | Download from the [latest release](https://github.com/open-jarvis/OpenJarvis/releases) | — |
+| **Desktop GUI** | Download from the [latest release](https://github.com/77svene/openvarak/releases) | — |
 
 The bash and PowerShell installers do the same thing on their respective hosts. The rest of this page documents the bash installer in detail; the [native Windows guide](windows-native.md) is the equivalent reference for PowerShell.
 
@@ -24,9 +24,9 @@ model. **You don't need to install uv or any other prerequisite first.**
 
 !!! info "Install URL"
     This script is served straight from the project's own GitHub Pages site,
-    so HTTPS always works. You may also see `https://openjarvis.ai/install.sh`
+    so HTTPS always works. You may also see `https://openvarak.ai/install.sh`
     referenced in older docs — that domain is community-operated and has had
-    intermittent TLS issues ([#337](https://github.com/open-jarvis/OpenJarvis/issues/337)).
+    intermittent TLS issues ([#337](https://github.com/77svene/openvarak/issues/337)).
     The `open-jarvis.github.io` URL above is the canonical one.
 
 About 3 minutes on a typical broadband connection. Type `jarvis` to start chatting.
@@ -41,13 +41,13 @@ cancelled input leaves sharing off. See [Telemetry](../telemetry.md) for details
 | Phase | Step | Where |
 |---|---|---|
 | Foreground | Install `uv` (Python package manager) | `~/.cargo/bin/` or `~/.local/bin/` |
-| Foreground | Clone OpenJarvis repo | `~/.openjarvis/src/` |
-| Foreground | Create Python 3.11 venv | `~/.openjarvis/.venv/` |
+| Foreground | Clone OpenVarak repo | `~/.openvarak/src/` |
+| Foreground | Create Python 3.11 venv | `~/.openvarak/.venv/` |
 | Foreground | `uv pip install -e .` (editable install) | venv |
 | Foreground | Install Ollama | system default |
 | Foreground | Start `ollama serve` | systemd-user / launchd / nohup |
 | Foreground | Pull `qwen3.5:2b` (~1.5 GB) | Ollama's model store |
-| Foreground | Write `config.toml` (auto-detected hardware + engine + model) | `~/.openjarvis/config.toml` |
+| Foreground | Write `config.toml` (auto-detected hardware + engine + model) | `~/.openvarak/config.toml` |
 | Foreground | Symlink `jarvis` and `jarvis-uninstall` | `~/.local/bin/` |
 | Foreground | Add `~/.local/bin` to PATH if missing (with on-screen notice) | `~/.bashrc` or `~/.zshrc` |
 | Background | Install Rust toolchain via rustup | `~/.cargo/` |
@@ -63,7 +63,7 @@ cancelled input leaves sharing off. See [Telemetry](../telemetry.md) for details
 
 ## Idempotent re-runs
 
-Re-running the curl line is safe. The installer reads `~/.openjarvis/.state/install-state.json` and skips completed steps. If your venv got nuked, re-running heals it.
+Re-running the curl line is safe. The installer reads `~/.openvarak/.state/install-state.json` and skips completed steps. If your venv got nuked, re-running heals it.
 
 ## Cloud quick-path
 
@@ -90,8 +90,8 @@ Local-first remains the default when no key is in env. Precedence is OpenRouter 
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OPENJARVIS_HOME` | `$HOME/.openjarvis` | Install location. |
-| `OPENJARVIS_REPO_URL` | `https://github.com/open-jarvis/OpenJarvis.git` | Source repo for the clone step. |
+| `OPENVARAK_HOME` | `$HOME/.openvarak` | Install location. |
+| `OPENVARAK_REPO_URL` | `https://github.com/77svene/openvarak.git` | Source repo for the clone step. |
 
 ## Uninstall
 
@@ -99,7 +99,7 @@ Local-first remains the default when no key is in env. Precedence is OpenRouter 
 jarvis-uninstall
 ```
 
-Removes `~/.openjarvis/`, `~/.local/bin/jarvis`, and `~/.local/bin/jarvis-uninstall`. Leaves Ollama, uv, and the Rust toolchain in place (they may be used by other tools); the script prints removal hints.
+Removes `~/.openvarak/`, `~/.local/bin/jarvis`, and `~/.local/bin/jarvis-uninstall`. Leaves Ollama, uv, and the Rust toolchain in place (they may be used by other tools); the script prints removal hints.
 
 ## Updating
 
@@ -108,7 +108,7 @@ jarvis self-update
 ```
 
 Fetches release-tag history, pulls the latest source with a fast-forward-only
-update, and rebuilds OpenJarvis in the Python environment that launched Jarvis.
+update, and rebuilds OpenVarak in the Python environment that launched Jarvis.
 Previously installed extras are preserved. Older shallow installs are repaired
 automatically so `jarvis --version` reports a version derived from release tags.
 
@@ -133,7 +133,7 @@ jarvis doctor
 Manually retry:
 
 ```bash
-~/.openjarvis/.scripts/install-rust.sh && ~/.openjarvis/.scripts/build-extension.sh
+~/.openvarak/.scripts/install-rust.sh && ~/.openvarak/.scripts/build-extension.sh
 ```
 
 ### A bigger model failed to download
@@ -142,7 +142,7 @@ Check status and retry:
 
 ```bash
 jarvis doctor
-~/.openjarvis/.scripts/pull-model.sh qwen3.5:9b
+~/.openvarak/.scripts/pull-model.sh qwen3.5:9b
 ```
 
 ### Behind a corporate proxy

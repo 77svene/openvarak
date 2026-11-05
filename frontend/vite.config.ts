@@ -9,7 +9,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 // than failing the build, so the package/app stays publishable without it.
 // jarvis gui sets the proxy target without exposing an absolute API URL to the
 // browser, so requests stay on Vite's origin even on a custom frontend port.
-const apiTarget = process.env.OPENJARVIS_VITE_PROXY_TARGET
+const apiTarget = process.env.OPENVARAK_VITE_PROXY_TARGET
   || process.env.VITE_API_URL
   || 'http://localhost:8000';
 
@@ -25,7 +25,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'OpenJarvis',
+        name: 'OpenVarak',
         short_name: 'Jarvis',
         description: 'On-device AI assistant',
         theme_color: '#161618',
@@ -43,7 +43,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: '../src/openjarvis/server/static',
+    outDir: '../src/openvarak/server/static',
     emptyOutDir: true,
     // Preserve the Vite 6 browser baseline for existing desktop webviews.
     target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],

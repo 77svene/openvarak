@@ -23,7 +23,7 @@ For each platform below, start from a fresh user account / VM snapshot. Run the 
 5. **Completion notification fires** between turns when the bg work finishes (Rust extension or a model).
 6. **`jarvis doctor`** exits 0 once all bg work completes; shows the Background tasks table.
 7. **Re-run `curl … | bash`** on the same machine. It completes ≤ 30 s, says `[ok] step already done` for every step.
-8. **`jarvis-uninstall`** removes `~/.openjarvis/` and `~/.local/bin/jarvis*`. Verify with `ls`.
+8. **`jarvis-uninstall`** removes `~/.openvarak/` and `~/.local/bin/jarvis*`. Verify with `ls`.
 
 ## Cloud quick-path verification
 
@@ -41,8 +41,8 @@ Verify init proposes cloud (mentions "anthropic" in the prompt), and the resulti
 Run at least one failure scenario per release; rotate which one.
 
 - Disconnect network mid-install — verify clear error and re-run completes.
-- Delete `~/.openjarvis/config.toml` — verify bare `jarvis` re-runs init.
-- Delete `~/.openjarvis/.venv` — verify re-running curl heals it.
+- Delete `~/.openvarak/config.toml` — verify bare `jarvis` re-runs init.
+- Delete `~/.openvarak/.venv` — verify re-running curl heals it.
 - `EUID=0 bash install.sh` — verify hard-fail with "don't run as root".
 
 ## CI gates (automated, no manual action)

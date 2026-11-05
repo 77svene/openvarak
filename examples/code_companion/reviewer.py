@@ -53,10 +53,10 @@ def main(
     and an overall assessment.
     """
     try:
-        from openjarvis import Jarvis
+        from openvarak import Jarvis
     except ImportError:
         click.echo(
-            "Error: openjarvis is not installed. "
+            "Error: openvarak is not installed. "
             "Install it with:  uv sync --extra dev",
             err=True,
         )

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from openjarvis.core.types import ToolResult
-from openjarvis.skills.executor import SkillExecutor
-from openjarvis.skills.tool_adapter import SkillTool
-from openjarvis.skills.types import SkillManifest, SkillStep
-from openjarvis.tools._stubs import BaseTool, ToolExecutor, ToolSpec
+from openvarak.core.types import ToolResult
+from openvarak.skills.executor import SkillExecutor
+from openvarak.skills.tool_adapter import SkillTool
+from openvarak.skills.types import SkillManifest, SkillStep
+from openvarak.tools._stubs import BaseTool, ToolExecutor, ToolSpec
 
 
 class EchoTool(BaseTool):

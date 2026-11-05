@@ -35,7 +35,7 @@ SCORE_THRESHOLD = twitter_bot.SCORE_THRESHOLD
 MENTION = {
     "id": "3000000000000000001",
     "author": "indie_hacker",
-    "text": "@OpenJarvisAI can I run the orchestrator agent on a laptop without a gpu?",
+    "text": "@OpenVarakAI can I run the orchestrator agent on a laptop without a gpu?",
 }
 
 
@@ -55,8 +55,8 @@ def _ask_once(j, demo_channel, backend):
 
 
 def main():
-    from openjarvis import Jarvis
-    from openjarvis.tools.storage.dense import DenseMemory
+    from openvarak import Jarvis
+    from openvarak.tools.storage.dense import DenseMemory
 
     sys.path.insert(0, str(_THIS.parents[1] / "scripts"))
     from index_docs import build_index  # type: ignore

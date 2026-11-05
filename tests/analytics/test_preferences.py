@@ -12,11 +12,11 @@ import tomllib
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from openjarvis.analytics.client import AnalyticsClient
-from openjarvis.core.config import JarvisConfig, load_config
-from openjarvis.core.events import EventBus, EventType
-from openjarvis.server import analytics_routes
-from openjarvis.server.auth_middleware import AuthMiddleware
+from openvarak.analytics.client import AnalyticsClient
+from openvarak.core.config import JarvisConfig, load_config
+from openvarak.core.events import EventBus, EventType
+from openvarak.server import analytics_routes
+from openvarak.server.auth_middleware import AuthMiddleware
 
 
 @pytest.fixture
@@ -89,18 +89,18 @@ def test_preference_persists_to_active_config(
     app, _, _ = preference_app
     home = tmp_path / "home"
     home.mkdir()
-    monkeypatch.setenv("OPENJARVIS_HOME", str(home))
-    monkeypatch.delenv("OPENJARVIS_CONFIG", raising=False)
+    monkeypatch.setenv("OPENVARAK_HOME", str(home))
+    monkeypatch.delenv("OPENVARAK_CONFIG", raising=False)
     default_path = home / "config.toml"
     path = default_path
     if config_source in ("environment", "explicit"):
         path = tmp_path / "deployment.toml"
         default_path.write_text("# Leave the default configuration alone\n")
     if config_source == "environment":
-        monkeypatch.setenv("OPENJARVIS_CONFIG", str(path))
+        monkeypatch.setenv("OPENVARAK_CONFIG", str(path))
     elif config_source == "explicit":
         # An explicit load path takes precedence over the environment too.
-        monkeypatch.setenv("OPENJARVIS_CONFIG", str(tmp_path / "unused.toml"))
+        monkeypatch.setenv("OPENVARAK_CONFIG", str(tmp_path / "unused.toml"))
     path.write_text(f"[analytics]\nenabled = {str(not enabled).lower()}\n")
     load_config.cache_clear()
     try:

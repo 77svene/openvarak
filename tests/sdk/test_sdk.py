@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import openjarvis
-from openjarvis.core.config import JarvisConfig
-from openjarvis.sdk import Jarvis, MemoryHandle
+import openvarak
+from openvarak.core.config import JarvisConfig
+from openvarak.sdk import Jarvis, MemoryHandle
 
 
 def _make_engine(content="Hello from SDK"):
@@ -39,7 +39,7 @@ class TestJarvisInit:
 
     def test_version_property(self):
         j = Jarvis(config=JarvisConfig())
-        assert j.version == openjarvis.__version__
+        assert j.version == openvarak.__version__
         j.close()
 
     def test_engine_key_override(self):
@@ -56,7 +56,7 @@ class TestJarvisInit:
 class TestJarvisAsk:
     def test_ask_returns_string(self):
         engine = _make_engine("The answer is 42.")
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig(), model="test-model")
             result = j.ask("What is the answer?")
             assert result == "The answer is 42."
@@ -64,7 +64,7 @@ class TestJarvisAsk:
 
     def test_ask_with_model_override(self):
         engine = _make_engine()
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig())
             j.ask("Hello", model="custom-model")
             # Verify engine.generate was called with the custom model
@@ -73,8 +73,8 @@ class TestJarvisAsk:
             j.close()
 
     def test_ask_with_agent(self):
-        from openjarvis.agents._stubs import AgentResult
-        from openjarvis.core.registry import AgentRegistry
+        from openvarak.agents._stubs import AgentResult
+        from openvarak.core.registry import AgentRegistry
 
         engine = _make_engine()
 
@@ -89,23 +89,23 @@ class TestJarvisAsk:
 
         AgentRegistry.register_value("mock-agent", MockAgent)
 
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig(), model="test-model")
             result = j.ask("Hello", agent="mock-agent")
             assert result == "Agent response"
             j.close()
 
     def test_simple_agent_ignores_tool_security_kwargs(self):
-        from openjarvis.agents.simple import SimpleAgent
-        from openjarvis.core.registry import AgentRegistry
-        from openjarvis.security import SecurityContext
+        from openvarak.agents.simple import SimpleAgent
+        from openvarak.core.registry import AgentRegistry
+        from openvarak.security import SecurityContext
 
         engine = _make_engine("simple secured response")
         AgentRegistry.register_value("simple", SimpleAgent)
         with (
-            patch("openjarvis.sdk.get_engine", return_value=("mock", engine)),
+            patch("openvarak.sdk.get_engine", return_value=("mock", engine)),
             patch(
-                "openjarvis.security.setup_security",
+                "openvarak.security.setup_security",
                 return_value=SecurityContext(
                     engine=engine,
                     capability_policy=object(),
@@ -120,10 +120,10 @@ class TestJarvisAsk:
         assert result == "simple secured response"
 
     def test_direct_operation_agent_receives_policy_rate_and_identity(self):
-        from openjarvis.agents._stubs import AgentContext, AgentResult, BaseAgent
-        from openjarvis.core.registry import AgentRegistry
-        from openjarvis.security import SecurityContext
-        from openjarvis.security.capabilities import CapabilityPolicy
+        from openvarak.agents._stubs import AgentContext, AgentResult, BaseAgent
+        from openvarak.core.registry import AgentRegistry
+        from openvarak.security import SecurityContext
+        from openvarak.security.capabilities import CapabilityPolicy
 
         class _RecordingLimiter:
             def __init__(self):
@@ -148,9 +148,9 @@ class TestJarvisAsk:
         AgentRegistry.register_value("direct-sdk", _DirectSDKAgent)
 
         with (
-            patch("openjarvis.sdk.get_engine", return_value=("mock", engine)),
+            patch("openvarak.sdk.get_engine", return_value=("mock", engine)),
             patch(
-                "openjarvis.security.setup_security",
+                "openvarak.security.setup_security",
                 return_value=SecurityContext(
                     engine=engine,
                     capability_policy=policy,
@@ -166,8 +166,8 @@ class TestJarvisAsk:
         assert limiter.keys == ["direct-sdk:agent_run"]
 
     def test_ask_with_agent_wires_persona(self, tmp_path):
-        from openjarvis.agents.simple import SimpleAgent
-        from openjarvis.core.registry import AgentRegistry
+        from openvarak.agents.simple import SimpleAgent
+        from openvarak.core.registry import AgentRegistry
 
         soul = tmp_path / "SOUL.md"
         soul.write_text("SDK_PERSONA_SENTINEL", encoding="utf-8")
@@ -182,7 +182,7 @@ class TestJarvisAsk:
             AgentRegistry.register_value("simple", SimpleAgent)
 
         engine = _make_engine()
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=cfg, model="test-model")
             j.ask("Hello", agent="simple")
             messages = engine.generate.call_args.args[0]
@@ -190,7 +190,7 @@ class TestJarvisAsk:
             j.close()
 
     def test_ask_no_engine_raises(self):
-        with patch("openjarvis.sdk.get_engine", return_value=None):
+        with patch("openvarak.sdk.get_engine", return_value=None):
             j = Jarvis(config=JarvisConfig())
             with pytest.raises(RuntimeError, match="No inference engine"):
                 j.ask("Hello")
@@ -198,7 +198,7 @@ class TestJarvisAsk:
 
     def test_ask_full_returns_dict(self):
         engine = _make_engine("Full response")
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig(), model="test-model")
             result = j.ask_full("Hello")
             assert isinstance(result, dict)
@@ -211,14 +211,14 @@ class TestJarvisAsk:
 class TestJarvisModels:
     def test_list_models(self):
         engine = _make_engine()
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig())
             models = j.list_models()
             assert models == ["test-model"]
             j.close()
 
     def test_list_engines(self):
-        from openjarvis.core.registry import EngineRegistry
+        from openvarak.core.registry import EngineRegistry
 
         EngineRegistry.register_value("test-eng", object)
         j = Jarvis(config=JarvisConfig())
@@ -320,7 +320,7 @@ class TestJarvisStreaming:
 
         engine.stream = mock_stream
 
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig(), model="test-model")
             tokens = []
             async for token in j.ask_stream("Hi"):
@@ -338,7 +338,7 @@ class TestJarvisStreaming:
 
         engine.stream = mock_stream
 
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig(), model="test-model")
             chunks = []
             async for chunk in j.ask_full_stream("Hi"):
@@ -369,7 +369,7 @@ class TestJarvisStreaming:
 
         engine.stream = mock_stream
 
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig())
             tokens = []
             async for token in j.ask_stream("Hi", model="custom-model"):
@@ -382,12 +382,12 @@ class TestJarvisStreaming:
 class TestJarvisLifecycle:
     @pytest.mark.parametrize("security_enabled", [False, True])
     def test_close_initialized_engine(self, security_enabled: bool) -> None:
-        from openjarvis.security.guardrails import GuardrailsEngine
+        from openvarak.security.guardrails import GuardrailsEngine
 
         cfg = JarvisConfig()
         cfg.security.enabled = security_enabled
         engine = _make_engine()
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=cfg)
             try:
                 assert j.list_models() == ["test-model"]
@@ -403,7 +403,7 @@ class TestJarvisLifecycle:
 
     def test_context_manager_closes_initialized_engine(self) -> None:
         engine = _make_engine()
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             with Jarvis(config=JarvisConfig()) as j:
                 j.list_models()
             engine.close.assert_called_once()
@@ -411,7 +411,7 @@ class TestJarvisLifecycle:
     def test_engine_close_failure_clears_reference(self) -> None:
         engine = _make_engine()
         engine.close.side_effect = RuntimeError("cleanup failed")
-        with patch("openjarvis.sdk.get_engine", return_value=("mock", engine)):
+        with patch("openvarak.sdk.get_engine", return_value=("mock", engine)):
             j = Jarvis(config=JarvisConfig())
             try:
                 j.list_models()

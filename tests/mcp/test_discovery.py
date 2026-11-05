@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openjarvis.tools._stubs import ToolSpec
+from openvarak.tools._stubs import ToolSpec
 
 
 def _make_mock_tool(name: str) -> MagicMock:
@@ -20,7 +20,7 @@ def _make_mock_tool(name: str) -> MagicMock:
 @pytest.fixture
 def builder():
     """Create a minimal SystemBuilder instance for testing _discover_external_mcp."""
-    from openjarvis.system import SystemBuilder
+    from openvarak.system import SystemBuilder
 
     def _minimal_init(self):
         self._mcp_clients = []
@@ -33,11 +33,11 @@ def builder():
 
 # Patch targets: the method uses local imports, so we patch the actual classes
 # in their source modules (which is where the local from-imports resolve to).
-_PATCH_HTTP = "openjarvis.mcp.transport.StreamableHTTPTransport"
-_PATCH_STDIO = "openjarvis.mcp.transport.StdioTransport"
-_PATCH_CLIENT = "openjarvis.mcp.client.MCPClient"
-_PATCH_PROVIDER = "openjarvis.tools.mcp_adapter.MCPToolProvider"
-_PATCH_LOGGER = "openjarvis.system.builder.logger"
+_PATCH_HTTP = "openvarak.mcp.transport.StreamableHTTPTransport"
+_PATCH_STDIO = "openvarak.mcp.transport.StdioTransport"
+_PATCH_CLIENT = "openvarak.mcp.client.MCPClient"
+_PATCH_PROVIDER = "openvarak.tools.mcp_adapter.MCPToolProvider"
+_PATCH_LOGGER = "openvarak.system.builder.logger"
 
 
 class TestDiscoverHTTPServer:
@@ -185,8 +185,8 @@ class TestClientPersistence:
 def test_builder_retains_full_mcp_pool_for_managed_agents() -> None:
     """Global primary-agent filters must not trim managed-agent MCP tools."""
 
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.system import SystemBuilder
+    from openvarak.core.config import JarvisConfig
+    from openvarak.system import SystemBuilder
 
     config = JarvisConfig()
     config.tools.mcp.servers = json.dumps(
@@ -196,7 +196,7 @@ def test_builder_retains_full_mcp_pool_for_managed_agents() -> None:
     builder = SystemBuilder(config).tools(["native_only"])
 
     with (
-        patch("openjarvis.mcp.server.MCPServer") as mcp_server_cls,
+        patch("openvarak.mcp.server.MCPServer") as mcp_server_cls,
         patch.object(
             builder,
             "_discover_external_mcp",
@@ -218,8 +218,8 @@ def test_builder_retains_full_mcp_pool_for_managed_agents() -> None:
 def test_builder_wires_security_context_into_internal_mcp_server() -> None:
     """The builder's MCP construction site must not drop dispatch gates."""
 
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.system import SystemBuilder
+    from openvarak.core.config import JarvisConfig
+    from openvarak.system import SystemBuilder
 
     config = JarvisConfig()
     config.security.allowed_dirs = ["/sandbox"]
@@ -228,7 +228,7 @@ def test_builder_wires_security_context_into_internal_mcp_server() -> None:
     bus = object()
     builder = SystemBuilder(config)
 
-    with patch("openjarvis.mcp.server.MCPServer") as mcp_server_cls:
+    with patch("openvarak.mcp.server.MCPServer") as mcp_server_cls:
         mcp_server_cls.return_value.get_tools.return_value = []
         builder._resolve_tools(
             config,
@@ -252,8 +252,8 @@ def test_builder_wires_security_context_into_internal_mcp_server() -> None:
 def test_builder_global_mcp_disable_prevents_discovery() -> None:
     """A global MCP disable is honored by every managed-agent entry path."""
 
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.system import SystemBuilder
+    from openvarak.core.config import JarvisConfig
+    from openvarak.system import SystemBuilder
 
     config = JarvisConfig()
     config.tools.mcp.enabled = False
@@ -263,7 +263,7 @@ def test_builder_global_mcp_disable_prevents_discovery() -> None:
     builder = SystemBuilder(config)
 
     with (
-        patch("openjarvis.mcp.server.MCPServer") as mcp_server_cls,
+        patch("openvarak.mcp.server.MCPServer") as mcp_server_cls,
         patch.object(builder, "_discover_external_mcp") as discover,
     ):
         mcp_server_cls.return_value.get_tools.return_value = []
@@ -281,8 +281,8 @@ def test_builder_global_mcp_disable_prevents_discovery() -> None:
 def test_builder_resolves_external_file_from_config_directory(tmp_path) -> None:
     """SystemBuilder consumes file-backed MCP config on the primary path."""
 
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.system import SystemBuilder
+    from openvarak.core.config import JarvisConfig
+    from openvarak.system import SystemBuilder
 
     server_file = tmp_path / "mcp-servers.json"
     server_file.write_text(
@@ -295,7 +295,7 @@ def test_builder_resolves_external_file_from_config_directory(tmp_path) -> None:
     builder = SystemBuilder(config)
 
     with (
-        patch("openjarvis.mcp.server.MCPServer") as mcp_server_cls,
+        patch("openvarak.mcp.server.MCPServer") as mcp_server_cls,
         patch.object(builder, "_discover_external_mcp", return_value=[]) as discover,
     ):
         mcp_server_cls.return_value.get_tools.return_value = []
@@ -314,8 +314,8 @@ def test_builder_resolves_external_file_from_config_directory(tmp_path) -> None:
 def test_reused_builder_transfers_only_current_build_mcp_state() -> None:
     """Each built system exclusively owns its own MCP clients and tools."""
 
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.system import SystemBuilder
+    from openvarak.core.config import JarvisConfig
+    from openvarak.system import SystemBuilder
 
     config = JarvisConfig()
     config.telemetry.enabled = False

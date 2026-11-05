@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from openjarvis.cli.serve import _resolve_allowed_tools, _resolve_server_cors_origins
-from openjarvis.core.config import JarvisConfig
+from openvarak.cli.serve import _resolve_allowed_tools, _resolve_server_cors_origins
+from openvarak.core.config import JarvisConfig
 
 
 @pytest.mark.parametrize(
@@ -55,7 +55,7 @@ def test_serve_defaults_tools_when_no_selection_is_configured():
 
 def test_cors_environment_overrides_configured_defaults(monkeypatch):
     monkeypatch.setenv(
-        "OPENJARVIS_CORS_ORIGINS",
+        "OPENVARAK_CORS_ORIGINS",
         " https://frontend.example, https://admin.example ",
     )
 
@@ -65,7 +65,7 @@ def test_cors_environment_overrides_configured_defaults(monkeypatch):
 
 
 def test_cors_config_is_used_without_environment(monkeypatch):
-    monkeypatch.delenv("OPENJARVIS_CORS_ORIGINS", raising=False)
+    monkeypatch.delenv("OPENVARAK_CORS_ORIGINS", raising=False)
 
     origins = _resolve_server_cors_origins(["http://localhost:5173"])
 

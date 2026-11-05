@@ -13,9 +13,9 @@ from unittest.mock import MagicMock
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli.model import model
+from openvarak.cli.model import model
 
-model_module = importlib.import_module("openjarvis.cli.model")
+model_module = importlib.import_module("openvarak.cli.model")
 
 
 class TestModelConvert:

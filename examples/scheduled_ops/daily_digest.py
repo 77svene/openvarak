@@ -51,7 +51,7 @@ def main(topics: str, model: str | None, engine_key: str | None) -> None:
     )
 
     try:
-        from openjarvis import Jarvis
+        from openvarak import Jarvis
 
         kwargs: dict[str, str | None] = {}
         if model:
@@ -64,7 +64,7 @@ def main(topics: str, model: str | None, engine_key: str | None) -> None:
         click.echo(
             f"Error: Could not initialize Jarvis: {exc}\n\n"
             "Make sure an inference engine is running (e.g. `ollama serve`) "
-            "and the openjarvis package is installed (`uv sync`).",
+            "and the openvarak package is installed (`uv sync`).",
             err=True,
         )
         raise SystemExit(1) from exc

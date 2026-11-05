@@ -6,10 +6,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openjarvis.cli._first_run import check_and_route
-from openjarvis.cli.chat_cmd import chat as chat_cmd
-from openjarvis.cli.init_cmd import init as init_cmd
-from openjarvis.core import config as _cfg
+from openvarak.cli._first_run import check_and_route
+from openvarak.cli.chat_cmd import chat as chat_cmd
+from openvarak.cli.init_cmd import init as init_cmd
+from openvarak.core import config as _cfg
 
 
 @pytest.fixture()

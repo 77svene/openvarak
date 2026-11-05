@@ -1,11 +1,11 @@
 # Document QA
 
-Index a directory of documents into OpenJarvis memory and answer questions
+Index a directory of documents into OpenVarak memory and answer questions
 with context-augmented retrieval and citations.
 
 ## Requirements
 
-- OpenJarvis installed (`git clone https://github.com/open-jarvis/OpenJarvis.git && cd OpenJarvis && uv sync` or `uv sync --extra dev`)
+- OpenVarak installed (`git clone https://github.com/77svene/openvarak.git && cd OpenVarak && uv sync` or `uv sync --extra dev`)
 - An inference engine running (Ollama, cloud API, vLLM, etc.)
 - A memory backend available (SQLite is the built-in default)
 
@@ -32,5 +32,5 @@ The script performs two steps:
    retrieved documents.
 
 This is the retrieval-augmented generation (RAG) pattern built into the
-OpenJarvis SDK. Adjust `--chunk-size` and `--top-k` to tune the
+OpenVarak SDK. Adjust `--chunk-size` and `--top-k` to tune the
 retrieval quality for your documents.

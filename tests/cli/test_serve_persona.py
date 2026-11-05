@@ -22,14 +22,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from openjarvis.cli import cli
+from openvarak.cli import cli
 
 pytest.importorskip("fastapi")
 pytest.importorskip("uvicorn")
 
-# ``openjarvis.cli.serve`` as a package attribute resolves to the click
+# ``openvarak.cli.serve`` as a package attribute resolves to the click
 # *command* (re-exported); grab the real module to monkeypatch its globals.
-serve_mod = importlib.import_module("openjarvis.cli.serve")
+serve_mod = importlib.import_module("openvarak.cli.serve")
 
 
 def _fake_engine() -> MagicMock:
@@ -51,12 +51,12 @@ def test_serve_wires_persona_builder_into_served_agent(
     """The agent built on the serve path must carry a SystemPromptBuilder whose
     assembled prompt includes SOUL.md content (regression for the HTTP persona
     loss)."""
-    from openjarvis.agents.monitor_operative import MonitorOperativeAgent
-    from openjarvis.agents.operative import OperativeAgent
-    from openjarvis.agents.orchestrator import OrchestratorAgent
-    from openjarvis.agents.simple import SimpleAgent
-    from openjarvis.core.config import JarvisConfig
-    from openjarvis.core.registry import AgentRegistry
+    from openvarak.agents.monitor_operative import MonitorOperativeAgent
+    from openvarak.agents.operative import OperativeAgent
+    from openvarak.agents.orchestrator import OrchestratorAgent
+    from openvarak.agents.simple import SimpleAgent
+    from openvarak.core.config import JarvisConfig
+    from openvarak.core.registry import AgentRegistry
 
     # Persona file with a unique sentinel we can grep for in the built prompt.
     soul = tmp_path / "SOUL.md"
@@ -96,7 +96,7 @@ def test_serve_wires_persona_builder_into_served_agent(
     sec.engine = engine
     sec.capability_policy = None
     sec.audit_logger = None
-    monkeypatch.setattr("openjarvis.security.setup_security", lambda *a, **k: sec)
+    monkeypatch.setattr("openvarak.security.setup_security", lambda *a, **k: sec)
 
     captured: dict = {}
 
@@ -105,8 +105,8 @@ def test_serve_wires_persona_builder_into_served_agent(
         return MagicMock(name="app")
 
     with (
-        patch("openjarvis.server.app.create_app", side_effect=_capture_create_app),
-        patch("openjarvis.server.daemon.run_server", lambda *a, **k: None),
+        patch("openvarak.server.app.create_app", side_effect=_capture_create_app),
+        patch("openvarak.server.daemon.run_server", lambda *a, **k: None),
     ):
         result = CliRunner().invoke(
             cli, ["serve", "--agent", agent_name], catch_exceptions=False

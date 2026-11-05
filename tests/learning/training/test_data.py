@@ -5,8 +5,8 @@ from __future__ import annotations
 import time
 from typing import Any, List
 
-from openjarvis.core.types import StepType, Trace, TraceStep
-from openjarvis.learning.training.data import TrainingDataMiner
+from openvarak.core.types import StepType, Trace, TraceStep
+from openvarak.learning.training.data import TrainingDataMiner
 
 # ---------------------------------------------------------------------------
 # Helpers

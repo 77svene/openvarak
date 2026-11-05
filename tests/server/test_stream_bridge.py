@@ -10,11 +10,11 @@ import pytest
 
 pytest.importorskip("fastapi")
 
-from openjarvis.agents._stubs import AgentResult  # noqa: E402
-from openjarvis.core.events import EventBus  # noqa: E402
-from openjarvis.core.types import ToolResult  # noqa: E402
-from openjarvis.server.models import ChatCompletionRequest  # noqa: E402
-from openjarvis.server.stream_bridge import AgentStreamBridge  # noqa: E402
+from openvarak.agents._stubs import AgentResult  # noqa: E402
+from openvarak.core.events import EventBus  # noqa: E402
+from openvarak.core.types import ToolResult  # noqa: E402
+from openvarak.server.models import ChatCompletionRequest  # noqa: E402
+from openvarak.server.stream_bridge import AgentStreamBridge  # noqa: E402
 
 
 def _streamed_content(events: list[str]) -> str:

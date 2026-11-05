@@ -133,9 +133,9 @@ class TestDockerFiles:
         required_markers = [
             "rustup toolchain install 1.88",
             "maturin build --release",
-            "rust/crates/openjarvis-python/Cargo.toml",
-            "/tmp/openjarvis-rust-wheel/*.whl",
-            "import openjarvis_rust",
+            "rust/crates/openvarak-python/Cargo.toml",
+            "/tmp/openvarak-rust-wheel/*.whl",
+            "import openvarak_rust",
         ]
 
         for name in build_dockerfiles:
@@ -153,7 +153,7 @@ class TestDockerFiles:
             ), f"{name}: rust workspace copied after native build"
 
     def test_systemd_service_exists(self):
-        assert (SYSTEMD_DIR / "openjarvis.service").is_file()
+        assert (SYSTEMD_DIR / "openvarak.service").is_file()
 
 
 class TestImagePinning:
@@ -273,7 +273,7 @@ class TestSystemdHardening:
     """#564 — systemd unit ships secrets via EnvironmentFile and is sandboxed."""
 
     def _service(self) -> str:
-        return (SYSTEMD_DIR / "openjarvis.service").read_text()
+        return (SYSTEMD_DIR / "openvarak.service").read_text()
 
     def test_environment_file_for_secrets(self):
         assert "EnvironmentFile=" in self._service()
