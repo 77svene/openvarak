@@ -208,6 +208,7 @@ class ToolExecutor:
         self._failure_counts = {}
         self._repair_hook = None
         self._repair_threshold = 3
+        self._action_journal = None
         for tool in tools:
             bind = getattr(tool, "bind_executor", None)
             if bind:
@@ -247,6 +248,10 @@ class ToolExecutor:
     def configure_repair(self, callback, threshold=3) -> None:
         self._repair_hook = callback
         self._repair_threshold = max(1, threshold)
+
+    def configure_journal(self, journal) -> None:
+        """Install the desktop action boundary without changing other runtimes."""
+        self._action_journal = journal
 
     @property
     def retry_count(self) -> int:
@@ -450,12 +455,55 @@ class ToolExecutor:
                 },
             )
 
-        # Execute with timeout
+        # Claim after capability/confirmation checks, before any side effect.
+        action_id, cached = None, None
+        if self._action_journal is not None:
+            from openvarak.runtime.actions import ActionBlocked, action_job, is_mutating
+
+            if is_mutating(tool, params):
+                try:
+                    action_id, cached = self._action_journal.claim(
+                        action_job.get(),
+                        tool_call.name,
+                        params,
+                        cost_minor=tool.spec.metadata.get("cost_minor", 0),
+                    )
+                except (ActionBlocked, ValueError) as exc:
+                    return ToolResult(
+                        tool_name=tool_call.name,
+                        content=str(exc),
+                        success=False,
+                        metadata={"action_blocked": True},
+                    )
+
+        # Execute with timeout. A late receipt can resolve an earlier timeout;
+        # a timeout never authorizes another invocation of the same action.
         timeout = tool.spec.timeout_seconds or self._default_timeout
         t0 = time.time()
-        future = _TOOL_RUNNER.submit(tool.execute, **params)
+        future = (
+            None if cached is not None else _TOOL_RUNNER.submit(tool.execute, **params)
+        )
+        if future is not None and action_id is not None:
+
+            def record_receipt(completed):
+                try:
+                    receipt = completed.result()
+                    if not isinstance(receipt, ToolResult):
+                        raise TypeError("Tool did not return a ToolResult")
+                    self._action_journal.finish(action_id, receipt)
+                except Exception:
+                    try:
+                        self._action_journal.unknown(action_id)
+                    except Exception:
+                        logger.debug(
+                            "Late action receipt outlived its runtime", exc_info=True
+                        )
+
+            future.add_done_callback(record_receipt)
         try:
-            if future is None:
+            if cached is not None:
+                result = cached
+            elif future is None:
                 result = ToolResult(
                     tool_name=tool_call.name,
                     content=(
@@ -487,6 +535,12 @@ class ToolExecutor:
                 content=f"Tool execution error: {exc}",
                 success=False,
             )
+        if action_id is not None:
+            result.metadata["action_id"] = action_id
+            if result.success:
+                self._action_journal.finish(action_id, result)
+            else:
+                self._action_journal.unknown(action_id)
         latency = time.time() - t0
         result.latency_seconds = latency
         result.metadata["arguments"] = params

@@ -1,0 +1,43 @@
+# Optional Temporal + typed local agent + PostgreSQL action ledger.
+# Install the durable extra and start the companion services first.
+[engine]
+default = "llamacpp"
+[engine.llamacpp]
+host = "http://127.0.0.1:8080"
+[intelligence]
+default_model = "local-main"
+max_tokens = 1024
+[desktop]
+enabled = true
+agent_type = "pydantic"
+local_model = "local-main"
+local_context_tokens = 8192
+cloud_enabled = false
+orchestrator = "temporal"
+temporal_address = "127.0.0.1:7233"
+temporal_namespace = "default"
+temporal_task_queue = "openvarak-desktop"
+temporal_activity_timeout_seconds = 1800
+action_backend = "postgres"
+action_dsn_env = "VARAK_POSTGRES_DSN"
+action_budget_minor = 0
+action_currency = "CAD"
+retry_tasks = false
+require_verified_completion = true
+skills_enabled = false
+[cluster]
+enabled = false
+remote_nodes = []
+[tools]
+enabled = "calculator,file_read,file_write,web_search"
+[tools.storage]
+default_backend = "hybrid_persistent"
+supabase_enabled = false
+[agent]
+max_turns = 25
+[telemetry]
+enabled = false
+[analytics]
+enabled = false
+[scheduler]
+enabled = false
