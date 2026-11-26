@@ -318,7 +318,7 @@ async def test_webhook_wakes_agent_without_polling_and_saves_state(tmp_path):
         job_id = runtime.submit({"prompt": "go now"})
         await asyncio.wait_for(runtime._queue.join(), 3)
         agent.run.assert_called_once_with("go now")
-        assert runtime.job(job_id)["status"] == "completed"
+        assert runtime.job(job_id)["status"] == "unverified"
         assert memory.latest_checkpoint("desktop")["content"] == "completed"
     finally:
         await runtime.close()
@@ -425,6 +425,9 @@ async def test_task_failure_triggers_bounded_optimizer_and_retries(tmp_path):
     runtime = DesktopRuntime(
         JarvisConfig(), memory=memory, agent=agent, engine=FakeEngine()
     )
+    # Explicit compatibility mode for this pure, pre-tool retry fixture.
+    runtime.config.desktop.retry_tasks = True
+    runtime.config.desktop.require_verified_completion = False
     optimizer = MagicMock()
     optimizer.recover_task.return_value = "original task with recovery plan"
     runtime._optimizer = optimizer
@@ -465,7 +468,7 @@ async def test_pending_job_recovers_after_restart(tmp_path):
     try:
         await second.start()
         await asyncio.wait_for(second._queue.join(), 3)
-        assert second.job(job_id)["status"] == "completed"
+        assert second.job(job_id)["status"] == "unverified"
         agent.run.assert_called_once_with("survives restart")
     finally:
         await second.close()

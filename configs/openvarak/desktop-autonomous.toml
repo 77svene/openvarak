@@ -20,7 +20,7 @@ agent_type = "operative"
 local_model = "qwen3.5:9b"
 # Tune for the loaded model, quantization, available VRAM, and KV-cache size.
 local_context_tokens = 16384
-cloud_enabled = true
+cloud_enabled = false
 cloud_model = "openrouter/auto"
 webhook_port = 8765
 webhook_token_env = "VARAK_WEBHOOK_TOKEN"
@@ -28,6 +28,12 @@ queue_size = 128
 skills_enabled = true
 skill_image = "python:3.12-slim"
 self_heal_threshold = 3
+orchestrator = "sqlite"
+action_backend = "sqlite"
+action_budget_minor = 0
+action_currency = "CAD"
+retry_tasks = false
+require_verified_completion = true
 
 [cluster]
 enabled = false

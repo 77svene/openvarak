@@ -1,5 +1,15 @@
 # OpenVarak migration and verification
 
+## Durable execution extension
+
+The historical verification below describes the original desktop migration.
+The subsequent execution extension adds action journaling, event deduplication,
+deterministic acceptance contracts, evidence freshness/scope filters, optional
+Temporal dispatch, a typed local Pydantic AI agent, and PostgreSQL settlement
+accounting. Interrupted jobs now require reconciliation and new desktop profiles
+disable cloud escalation by default. See [durable desktop execution](durable-desktop.md)
+for current behavior, configuration, service requirements, and test scope.
+
 ## Implemented
 
 - `src/openjarvis` → `src/openvarak`; Python imports, Rust crates/PyO3 bindings,

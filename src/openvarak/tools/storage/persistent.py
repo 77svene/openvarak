@@ -177,6 +177,66 @@ class HybridPersistentMemoryBackend(MemoryBackend):
             for c, s, m, score in rows
         ]
 
+    def store_evidence(
+        self,
+        content,
+        *,
+        source_uri,
+        scope="owner",
+        observed_at=None,
+        valid_until=None,
+        metadata=None,
+    ):
+        """Sourced, scoped facts; ordinary checkpoints are never evidence hits."""
+        import hashlib
+        import math
+
+        if not source_uri or not scope:
+            raise ValueError("Evidence requires a source URI and access scope")
+        observed = time.time() if observed_at is None else float(observed_at)
+        expires = None if valid_until is None else float(valid_until)
+        if not math.isfinite(observed) or (
+            expires is not None and not math.isfinite(expires)
+        ):
+            raise ValueError("Evidence times must be finite")
+        if expires is not None and expires <= observed:
+            raise ValueError("Evidence expiry must follow its observation")
+        fields = dict(metadata or {})
+        fields["_evidence"] = {
+            "source_uri": source_uri,
+            "scope": scope,
+            "observed_at": observed,
+            "valid_until": expires,
+            "sha256": hashlib.sha256(content.encode()).hexdigest(),
+        }
+        return self.store(content, source=source_uri, metadata=fields)
+
+    def retrieve_evidence(self, query, *, scope="owner", top_k=5, now=None):
+        """Apply scope and freshness before ranking/limiting; no cloud IO."""
+        terms = re.findall(r"\w+", query, flags=re.UNICODE)
+        if not terms or top_k <= 0:
+            return []
+        instant = time.time() if now is None else float(now)
+        expression = " OR ".join('"' + term + '"' for term in terms)
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT d.content,d.source,d.metadata,bm25(varak_fts)
+                FROM varak_fts JOIN varak_documents d ON d.rowid=varak_fts.rowid
+                WHERE varak_fts MATCH ?
+                AND json_extract(d.metadata,'$._evidence.scope')=?
+                AND json_extract(d.metadata,'$._evidence.observed_at')<=?
+                AND (json_extract(d.metadata,'$._evidence.valid_until') IS NULL
+                     OR json_extract(d.metadata,'$._evidence.valid_until')>?)
+                ORDER BY bm25(varak_fts) LIMIT ?
+            """,
+                (expression, scope, instant, instant, top_k),
+            ).fetchall()
+        return [
+            RetrievalResult(content=c, source=s, metadata=json.loads(m), score=-rank)
+            for c, s, m, rank in rows
+        ]
+
     def _delete(self, doc_id):
         cursor = self._conn.execute("DELETE FROM varak_documents WHERE id=?", (doc_id,))
         if cursor.rowcount:

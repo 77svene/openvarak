@@ -88,6 +88,9 @@ def check(ctx):
                     "documents": memory.count(),
                     "telemetry": config.telemetry.enabled,
                     "cluster": config.cluster.enabled,
+                    "cloud_enabled": config.desktop.cloud_enabled,
+                    "orchestrator": config.desktop.orchestrator,
+                    "action_backend": config.desktop.action_backend,
                 }
             )
         )
@@ -133,9 +136,14 @@ def ask(ctx, prompt):
             job_id = runtime.submit({"prompt": prompt})
             await runtime._queue.join()
             job = runtime.job(job_id)
-            if job["status"] != "completed":
-                raise click.ClickException(job["result"]["error"])
+            if job["status"] not in {"completed", "unverified"}:
+                result = job["result"] or {}
+                raise click.ClickException(result.get("error", job["status"]))
             click.echo(job["result"]["content"])
+            if job["status"] == "unverified":
+                click.echo(
+                    "Response produced; no acceptance contract verified it.", err=True
+                )
         finally:
             await runtime.close()
 

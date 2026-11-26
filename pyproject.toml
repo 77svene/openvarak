@@ -45,6 +45,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+durable = [
+    "temporalio>=1.37,<2; python_version >= '3.11'",
+    "pydantic-ai-slim[openai]>=2.74,<3; python_version >= '3.11'",
+    "psycopg[binary]>=3.3,<4; python_version >= '3.11'",
+]
 research = ["datasets>=4.5.0", "nvidia-ml-py>=12.560.30", "posthog>=3.0"]
 dev = [
     "maturin>=1.12.6",
@@ -240,6 +245,11 @@ git_describe_command = [
 # hard-fail the build. Mirror the runtime sentinel in src/openvarak/__init__.py.
 # Such builds can inject the real version via SETUPTOOLS_SCM_PRETEND_VERSION.
 fallback_version = "0.0.0+unknown"
+
+[tool.uv]
+# The pinned legacy LiteLLM profile requires OpenAI SDK 2; typed local agents
+# use the current Pydantic AI/OpenAI SDK 3 integration. Keep both installable.
+conflicts = [[{extra = "durable"}, {extra = "inference-litellm"}]]
 
 [tool.uv.sources]
 openvarak-rust = { path = "rust/crates/openvarak-python" }

@@ -1781,7 +1781,7 @@ class DesktopConfig:
     enabled: bool = True
     local_model: str = "qwen3.5:9b"
     local_context_tokens: int = 16384
-    cloud_enabled: bool = True
+    cloud_enabled: bool = False
     cloud_model: str = "openrouter/auto"
     webhook_port: int = 8765
     webhook_token_env: str = "VARAK_WEBHOOK_TOKEN"
@@ -1790,6 +1790,19 @@ class DesktopConfig:
     skill_image: str = "python:3.12-slim"
     skills_enabled: bool = True
     agent_type: str = "operative"
+    orchestrator: str = "sqlite"
+    temporal_address: str = "127.0.0.1:7233"
+    temporal_namespace: str = "default"
+    temporal_task_queue: str = "openvarak-desktop"
+    temporal_activity_timeout_seconds: int = 1800
+    action_backend: str = "sqlite"
+    action_dsn_env: str = "VARAK_POSTGRES_DSN"
+    free_experiments: bool = False
+    action_budget_minor: int = 0
+    action_currency: str = "CAD"
+    retry_tasks: bool = False
+    require_verified_completion: bool = True
+    workspace_root: str = ""
 
 
 @dataclass

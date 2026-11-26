@@ -24,25 +24,37 @@ The default profile is [configs/openvarak/desktop-autonomous.toml](configs/openv
 A copy ships in the Python package, so installed wheels do not depend on a source checkout.
 The `jarvis` executable retains the legacy command suite during migration; it is deprecated.
 
-## Local GPU and cloud escalation
+## Durable execution and verified outcomes
+
+The desktop executor now journals consequential actions, deduplicates webhook
+event IDs, and separates model answers from independently verified outcomes.
+Interrupted actions are quarantined for authoritative reconciliation rather
+than blindly repeated. SQLite remains the default memory and execution store.
+
+Optional Temporal workflows, a typed Pydantic AI agent, and a PostgreSQL action
+and settlement ledger are available with `uv sync --extra durable`. See
+[the setup, API contracts, and recovery procedure](docs/durable-desktop.md)
+and [the optional local profile](configs/openvarak/durable-local.toml).
+
+## Local GPU and optional cloud escalation
 
 Select `ollama`, `vllm`, `sglang`, or `llamacpp` in `[engine]`; configure its nested
 host and the exact installed model ID in `[intelligence]`. Defaults point at
 loopback, and environment HTTP proxies are bypassed for desktop inference.
 
-Routine tool calls, parsing, RAG, and state checks stay local. A turn escalates
+Cloud escalation is disabled by default. If explicitly enabled, a turn escalates
 only when its full estimated context plus tool schemas and output reservation
 exceeds `desktop.local_context_tokens`, its retry count reaches two, or it carries
 an explicit high-depth reasoning hint. Adjust the context budget for your model,
 quantization, VRAM, and KV cache. Token estimates are approximate; no fixed local
 percentage or model fit is guaranteed for every workload.
 
-Set `OPENROUTER_API_KEY` to enable eligible escalations. `desktop.cloud_model`
+Set `desktop.cloud_enabled = true` and `OPENROUTER_API_KEY` for eligible escalations. `desktop.cloud_model`
 uses an OpenRouter model ID (`openrouter/auto` by default). The router forwards the
 same messages and tool schemas, including tool-call IDs and reasoning metadata.
 No key is needed for routine local turns. Missing credentials produce a clear
 error when escalation is required; traces and jobs remain local.
-Set `desktop.cloud_enabled = false` for fully offline operation.
+Local inference does not prevent approved research/browser tools from using the internet.
 
 `[cluster] enabled = false` rejects remote inference endpoints and performs no
 LAN discovery. To opt into a manually configured LAN endpoint, enable the block,
@@ -66,10 +78,12 @@ A hosted Supabase webhook needs a separately configured relay/tunnel to reach a
 loopback-only listener; OpenVarak does not expose the daemon publicly.
 
 Jobs are committed before acknowledgement, bounded in memory, and executed
-serially to avoid competing GPU sessions. Pending/interrupted jobs replay after
-restart with at-least-once semantics: make side effects idempotent. Results and
+serially to avoid competing GPU sessions. Pending jobs recover after restart;
+interrupted jobs require reconciliation. Whole-task retries are off by default.
+Responses without acceptance contracts are `unverified`; file hashes, expected
+JSON, or selected successful tool receipts can verify a contract. Results and
 failed traces persist locally. `desktop.agent_type` accepts `operative`,
-`monitor_operative`, `native_openhands`, or `rlm`.
+`monitor_operative`, `native_openhands`, `rlm`, or optional `pydantic`.
 
 ## Persistent memory
 
@@ -78,6 +92,11 @@ source replacement, checkpoints, and a durable ordered outbox. No native extensi
 or FAISS/ColBERT index is required for desktop memory. State defaults to
 `~/.openvarak/memory.db`; `OPENVARAK_HOME` relocates runtime state.
 Existing `~/.openjarvis` state is not automatically moved.
+
+`store_evidence()` and `retrieve_evidence()` add sourced facts with content hashes,
+access scopes, and expiry filtering before FTS ranking. Checkpoint/document
+retrieval remains unchanged. PostgreSQL is optional for actions and accounting,
+not required for local memory.
 
 Supabase sync is optional and disabled by default. Apply
 [deploy/supabase/memory.sql](deploy/supabase/memory.sql), set `SUPABASE_URL` and
