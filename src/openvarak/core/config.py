@@ -1797,6 +1797,7 @@ class DesktopConfig:
     temporal_activity_timeout_seconds: int = 1800
     action_backend: str = "sqlite"
     action_dsn_env: str = "VARAK_POSTGRES_DSN"
+    free_experiments: bool = False
     action_budget_minor: int = 0
     action_currency: str = "CAD"
     retry_tasks: bool = False

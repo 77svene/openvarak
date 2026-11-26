@@ -191,3 +191,10 @@ settlements, scoped/expired evidence, process death, reconciliation/resume,
 Temporal dispatch, and the typed agent's existing-executor integration.
 This does not establish improved model intelligence, GPU throughput, revenue,
 or fully unattended recovery for actions without authoritative receipt adapters.
+
+The durable-local profile enables `desktop.free_experiments` for the typed
+agent. It requires a zero action budget and exposes configured local file tools,
+the calculator, and keyless DuckDuckGo search. The model can write prototype
+source files. Running generated programs requires a separately isolated runner.
+The agent is instructed to find a free demand test or move to another idea.
+Time, compute and electricity still count when comparing experiments.

@@ -20,6 +20,7 @@ temporal_task_queue = "openvarak-desktop"
 temporal_activity_timeout_seconds = 1800
 action_backend = "postgres"
 action_dsn_env = "VARAK_POSTGRES_DSN"
+free_experiments = true
 action_budget_minor = 0
 action_currency = "CAD"
 retry_tasks = false
